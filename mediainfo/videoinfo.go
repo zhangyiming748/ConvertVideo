@@ -39,13 +39,13 @@ type VideoInfo struct {
 			FileNameExtension         string `json:"FileNameExtension,omitempty"`
 			FileName                  string `json:"FileName,omitempty"`
 			FileExtension             string `json:"FileExtension,omitempty"`
-			Format                    string `json:"Format"`
-			FormatString              string `json:"Format_String"`
+			Format                    string `json:"Format"`        // "HEVC"
+			FormatString              string `json:"Format_String"` // "HEVC"
 			FormatExtensions          string `json:"Format_Extensions,omitempty"`
 			FormatCommercial          string `json:"Format_Commercial"`
 			FormatProfile             string `json:"Format_Profile,omitempty"`
 			InternetMediaType         string `json:"InternetMediaType,omitempty"`
-			CodecID                   string `json:"CodecID"`
+			CodecID                   string `json:"CodecID"` // "hvc1"
 			CodecIDString             string `json:"CodecID_String,omitempty"`
 			CodecIDUrl                string `json:"CodecID_Url,omitempty"`
 			CodecIDCompatible         string `json:"CodecID_Compatible,omitempty"`
@@ -66,9 +66,9 @@ type VideoInfo struct {
 			OverallBitRateModeString  string `json:"OverallBitRate_Mode_String,omitempty"`
 			OverallBitRate            string `json:"OverallBitRate,omitempty"`
 			OverallBitRateString      string `json:"OverallBitRate_String,omitempty"`
-			FrameRate                 string `json:"FrameRate"`
-			FrameRateString           string `json:"FrameRate_String"`
-			FrameCount                string `json:"FrameCount"`
+			FrameRate                 string `json:"FrameRate"`        // "46.875"
+			FrameRateString           string `json:"FrameRate_String"` // "46.875 FPS (1024 SPF)"
+			FrameCount                string `json:"FrameCount"`       // "345543" 帧数
 			StreamSize                string `json:"StreamSize"`
 			StreamSizeString          string `json:"StreamSize_String"`
 			StreamSizeString1         string `json:"StreamSize_String1"`
@@ -88,17 +88,17 @@ type VideoInfo struct {
 			StreamOrder               string `json:"StreamOrder,omitempty"`
 			ID                        string `json:"ID,omitempty"`
 			IDString                  string `json:"ID_String,omitempty"`
-			FormatInfo                string `json:"Format_Info,omitempty"`
+			FormatInfo                string `json:"Format_Info,omitempty"` // "High Efficiency Video Coding"
 			FormatUrl                 string `json:"Format_Url,omitempty"`
 			FormatLevel               string `json:"Format_Level,omitempty"`
 			FormatTier                string `json:"Format_Tier,omitempty"`
 			CodecIDInfo               string `json:"CodecID_Info,omitempty"`
-			BitRate                   string `json:"BitRate,omitempty"`
-			BitRateString             string `json:"BitRate_String,omitempty"`
-			Width                     string `json:"Width,omitempty"`
-			WidthString               string `json:"Width_String,omitempty"`
-			Height                    string `json:"Height,omitempty"`
-			HeightString              string `json:"Height_String,omitempty"`
+			BitRate                   string `json:"BitRate,omitempty"`        // "69618"
+			BitRateString             string `json:"BitRate_String,omitempty"` // "69.6 kb/s"
+			Width                     string `json:"Width,omitempty"`          // "1920"
+			WidthString               string `json:"Width_String,omitempty"`   // "1 920 pixels"
+			Height                    string `json:"Height,omitempty"`         // "1080"
+			HeightString              string `json:"Height_String,omitempty"`  // "1 080 pixels"
 			SampledWidth              string `json:"Sampled_Width,omitempty"`
 			SampledHeight             string `json:"Sampled_Height,omitempty"`
 			PixelAspectRatio          string `json:"PixelAspectRatio,omitempty"`
@@ -182,7 +182,7 @@ type VideoInfo struct {
 func (bi *BasicInfo) SetVideoInfo(info VideoInfo) {
 	bi.VInfo = info
 }
-func InsertVideoInfo(bi *BasicInfo) {
+func (bi *BasicInfo) InsertVideoInfo() {
 	cmd := exec.Command("mediainfo", bi.FullPath, "--Full", "--Output=JSON")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
@@ -191,5 +191,5 @@ func InsertVideoInfo(bi *BasicInfo) {
 	var v VideoInfo
 	json.Unmarshal(output, &v)
 	//fmt.Println(v)
-	bi.SetVideoInfo(v)
+	bi.VInfo = v
 }

@@ -11,9 +11,16 @@ import (
 )
 
 func main() {
+	if direction := os.Getenv("direction"); direction == "" {
+		slog.Info("$direction为空,使用默认值", slog.String("$direction", constant.GetDirection()))
+	} else {
+		constant.SetDirection(direction)
+		slog.Info("$direction不为空", slog.String("$direction", direction))
+	}
+
 	if level := os.Getenv("level"); level == "" {
 		constant.SetLevel("Debug")
-		slog.Info("$level为空,使用默认值", slog.String("$root", constant.GetLevel()))
+		slog.Info("$level为空,使用默认值", slog.String("$level", constant.GetLevel()))
 		setLog(constant.GetLevel())
 	} else {
 		constant.SetLevel(level)
@@ -29,7 +36,7 @@ func main() {
 		slog.Info("$root不为空", slog.String("$root", root))
 	}
 	if to := os.Getenv("to"); to == "" {
-		constant.SetTo("vp9")
+		constant.SetTo("rotate")
 		slog.Info("$to为空,使用默认值", slog.String("$to", constant.GetTo()))
 	} else {
 		constant.SetTo(to)
@@ -40,6 +47,10 @@ func main() {
 	case "vp9":
 		for _, file := range files {
 			conv.ProcessVideo2VP9(*mediainfo.GetBasicInfo(file))
+		}
+	case "rotate":
+		for _, file := range files {
+			conv.RotateVideo(*mediainfo.GetBasicInfo(file), constant.GetDirection())
 		}
 	default:
 		os.Exit(0)

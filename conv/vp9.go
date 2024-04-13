@@ -22,6 +22,7 @@ func ProcessVideo2VP9(in mediainfo.BasicInfo) {
 		slog.Debug("跳过当前已经在h265/vp9目录中的文件", slog.String("文件名", in.FullPath))
 		return
 	}
+	FrameCount := ""
 	for _, v := range in.VInfo.Media.Track {
 		if v.Type == "Video" {
 			vinfo := v
@@ -33,6 +34,7 @@ func ProcessVideo2VP9(in mediainfo.BasicInfo) {
 			width, _ = strconv.Atoi(vinfo.Width)
 			height, _ = strconv.Atoi(vinfo.Height)
 			slog.Info("获取帧数", slog.String("当前视频帧数", vinfo.FrameCount))
+			FrameCount = vinfo.FrameCount
 		}
 	}
 	defer func() {
@@ -76,20 +78,14 @@ func ProcessVideo2VP9(in mediainfo.BasicInfo) {
 		return
 	}
 	slog.Info("生成的命令", slog.String("command", fmt.Sprint(cmd)))
-	util.ExecCommand(cmd)
+	util.ExecCommand(cmd, FrameCount)
 	slog.Debug("视频编码运行完成")
 
-	originsize, _ := strconv.ParseUint(in.VInfo.Media.Track[0].FileSize, 10, 64)
-	//in.VInfo.Media.Track[0].FileSize
-	fmt.Printf("originsize: %d\n", originsize)
-	after := mediainfo.GetBasicInfo(mp4)
-	after.InsertVideoInfo()
-	aftersize, _ := strconv.ParseUint(in.VInfo.Media.Track[0].FileSize, 10, 64)
-	fmt.Printf("aftersize: %d\n", aftersize)
-	sub := originsize - aftersize
-	mb := float64(sub) / (1024 * 1024)
-	mbStr := strconv.FormatFloat(mb, 'f', 2, 64) // 保留2位小数
-	result := mbStr + " MB"
-	slog.Info(fmt.Sprintf("本次转码完成，文件大小减少 %s", result))
+	originsize, _ := util.GetSize(in.FullPath)
+	aftersize, _ := util.GetSize(mp4)
+	sub, _ := util.GetDiffSize(originsize, aftersize)
+	fmt.Printf("savesize: %f MB\n", sub)
+
+	slog.Info(fmt.Sprintf("本次转码完成，文件大小减少 %f MB\n", sub))
 
 }

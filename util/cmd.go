@@ -2,13 +2,14 @@ package util
 
 import (
 	"fmt"
+	"github.com/zhangyiming748/ConvertVideo/constant"
 	"log/slog"
 	"os"
 	"os/exec"
 	"strings"
 )
 
-func ExecCommand(c *exec.Cmd) (e error) {
+func ExecCommand(c *exec.Cmd, info string) (e error) {
 	defer func() {
 		if err := recover(); err != nil {
 			slog.Warn("命令运行出现错误", slog.String("命令原文", fmt.Sprint(c)), slog.Any("错误原文", err))
@@ -16,7 +17,7 @@ func ExecCommand(c *exec.Cmd) (e error) {
 		}
 	}()
 	slog.Info("开始执行命令", slog.String("命令原文", fmt.Sprint(c)))
-	if level := GetVal("log", "level"); level == "Debug" {
+	if level := constant.GetLevel(); level == "Debug" {
 		stdout, err := c.StdoutPipe()
 		c.Stderr = c.Stdout
 		if err != nil {
@@ -33,6 +34,7 @@ func ExecCommand(c *exec.Cmd) (e error) {
 			t := string(tmp)
 			t = strings.Replace(t, "\u0000", "", -1)
 			fmt.Println(t)
+			fmt.Println(info)
 			if err != nil {
 				break
 			}
@@ -43,6 +45,7 @@ func ExecCommand(c *exec.Cmd) (e error) {
 		}
 	} else {
 		if output, err := c.CombinedOutput(); err != nil {
+			fmt.Println(info)
 			slog.Warn("命令执行中产生错误", slog.String("命令原文", fmt.Sprint(c)), slog.String("错误原文", fmt.Sprint(err)))
 			return err
 		} else {

@@ -9,4 +9,4 @@ vendor
 *.test
 *.out
 go.work
-
+*.log

@@ -2,7 +2,7 @@ package conv
 
 import (
 	"fmt"
-	"github.com/zhangyiming748/ConvertVideo/mediaInfo"
+	"github.com/zhangyiming748/ConvertVideo/mediainfo"
 	"github.com/zhangyiming748/ConvertVideo/replace"
 	"github.com/zhangyiming748/ConvertVideo/util"
 	"log/slog"
@@ -58,7 +58,7 @@ func Resize(in mediainfo.BasicInfo, p string) {
 		slog.Warn("不正常的视频源", slog.Any("视频信息", in.FullPath))
 	}
 	slog.Debug("ffmpeg", slog.String("生成的命令", fmt.Sprintf("生成的命令是:%s", cmd)))
-	if err := util.ExecCommand(cmd); err != nil {
+	if err := util.ExecCommand(cmd, ""); err != nil {
 		slog.Warn("resize发生错误", slog.String("命令原文", fmt.Sprint(cmd)), slog.String("错误原文", fmt.Sprint(err)), slog.String("源文件", in.FullPath))
 		return
 	}

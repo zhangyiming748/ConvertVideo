@@ -9,13 +9,10 @@ import (
 	"strings"
 )
 
-func ExecCommand(c *exec.Cmd, info string) (e error) {
-	defer func() {
-		if err := recover(); err != nil {
-			slog.Warn("命令运行出现错误", slog.String("命令原文", fmt.Sprint(c)), slog.Any("错误原文", err))
-			os.Exit(-1)
-		}
-	}()
+/*
+执行命令过程中可以循环打印消息
+*/
+func ExecCommand(c *exec.Cmd, msg string) (e error) {
 	slog.Info("开始执行命令", slog.String("命令原文", fmt.Sprint(c)))
 	if level := constant.GetLevel(); level == "Debug" {
 		stdout, err := c.StdoutPipe()
@@ -34,7 +31,7 @@ func ExecCommand(c *exec.Cmd, info string) (e error) {
 			t := string(tmp)
 			t = strings.Replace(t, "\u0000", "", -1)
 			fmt.Println(t)
-			fmt.Println(info)
+			fmt.Println(msg)
 			if err != nil {
 				break
 			}
@@ -44,12 +41,11 @@ func ExecCommand(c *exec.Cmd, info string) (e error) {
 			return err
 		}
 	} else {
+		fmt.Println(msg)
 		if output, err := c.CombinedOutput(); err != nil {
-			fmt.Println(info)
 			slog.Warn("命令执行中产生错误", slog.String("命令原文", fmt.Sprint(c)), slog.String("错误原文", fmt.Sprint(err)))
 			return err
 		} else {
-			// 这是一段永远不可能被运行的代码
 			slog.Debug("命令执行完毕", slog.String("输出", string(output)))
 		}
 	}

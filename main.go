@@ -19,7 +19,6 @@ func main() {
 	}
 
 	if level := os.Getenv("level"); level == "" {
-		constant.SetLevel("Debug")
 		slog.Info("$level为空,使用默认值", slog.String("$level", constant.GetLevel()))
 		setLog(constant.GetLevel())
 	} else {
@@ -28,15 +27,12 @@ func main() {
 		setLog(constant.GetLevel())
 	}
 	if root := os.Getenv("root"); root == "" {
-		constant.SetRoot("/data")
 		slog.Info("$root为空,使用默认值", slog.String("$root", constant.GetRoot()))
-
 	} else {
 		constant.SetRoot(root)
 		slog.Info("$root不为空", slog.String("$root", root))
 	}
 	if to := os.Getenv("to"); to == "" {
-		constant.SetTo("rotate")
 		slog.Info("$to为空,使用默认值", slog.String("$to", constant.GetTo()))
 	} else {
 		constant.SetTo(to)

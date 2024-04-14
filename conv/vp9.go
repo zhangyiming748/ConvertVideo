@@ -78,7 +78,8 @@ func ProcessVideo2VP9(in mediainfo.BasicInfo) {
 		return
 	}
 	slog.Info("生成的命令", slog.String("command", fmt.Sprint(cmd)))
-	util.ExecCommand(cmd, FrameCount)
+	msg := fmt.Sprintf("当前正在处理的视频总帧数:%v", FrameCount)
+	util.ExecCommand(cmd, msg)
 	slog.Debug("视频编码运行完成")
 
 	originsize, _ := util.GetSize(in.FullPath)

@@ -23,19 +23,12 @@ func ExitAfterRun() {
 		for {
 			input, _ := reader.ReadString('\n')
 			fmt.Printf("You entered is %T\t%v", input, input)
-			if input == "q\n" {
+			if input == "q\n" || input == "q\r\n" {
 				slog.Debug("接收到q")
 				//ExitAfterDone = true
 				SetExitStatus(true)
 				slog.Info("退出状态改变", slog.Bool("新值", ExitAfterDone))
 			}
-			if input == "q\r\n" {
-				slog.Debug("接收到q")
-				//ExitAfterDone = true
-				SetExitStatus(true)
-				slog.Info("windows 退出状态改变", slog.Bool("新值", ExitAfterDone))
-			}
-
 		}
 	}()
 }

@@ -11,6 +11,7 @@ import (
 )
 
 func main() {
+	go util.ExitAfterRun()
 	if direction := os.Getenv("direction"); direction == "" {
 		slog.Info("$direction为空,使用默认值", slog.String("$direction", constant.GetDirection()))
 	} else {

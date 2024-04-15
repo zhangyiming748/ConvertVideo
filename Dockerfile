@@ -16,6 +16,6 @@ RUN go build -o /usr/local/bin/conv main.go
 RUN chmod +x /usr/local/bin/conv
 WORKDIR /usr/local/bin
 CMD ["conv"]
-# docker build -t test:2
+# docker build -t test:5 .
 # docker run -d -v /f/Telegram/data test:1
-# docker run -itd --name test -v /c/Users/zen/Github/ConvertVideo:/data test:2 bash
+# docker run -itd  --cpus=1 --memory=2048M --name test -v /f/large/bodysuit:/data test:5

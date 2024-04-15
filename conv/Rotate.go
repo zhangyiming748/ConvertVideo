@@ -8,6 +8,7 @@ import (
 	"log/slog"
 	"os"
 	"os/exec"
+	"strconv"
 	"strings"
 )
 
@@ -46,9 +47,19 @@ func RotateVideo(in mediainfo.BasicInfo, direction string) {
 	default:
 		return
 	}
-	cmd = exec.Command("ffmpeg", "-i", in.FullPath, "-vf", transport, "-c:v", "libvpx-vp9", "-crf", "31", "-c:a", "libvorbis", "-ac", "1", "-map_chapters", "-1", out)
+	var (
+		width  int
+		height int
+	)
+	for _, v := range in.VInfo.Media.Track {
+		if v.Type == "video" {
+			width, _ = strconv.Atoi(v.Width)
+			height, _ = strconv.Atoi(v.Height)
+		}
+	}
+	crf := util.GetCrf("vp9", width, height)
+	cmd = exec.Command("ffmpeg", "-i", in.FullPath, "-vf", transport, "-c:v", "libvpx-vp9", "-crf", crf, "-c:a", "libvorbis", "-ac", "1", "-map_chapters", "-1", out)
 	util.ExecCommand(cmd, FrameCount)
-
 	originsize, _ := util.GetSize(in.FullPath)
 	aftersize, _ := util.GetSize(out)
 	sub, _ := util.GetDiffSize(originsize, aftersize)

@@ -10,3 +10,4 @@ vendor
 *.out
 go.work
 *.log
+*.db

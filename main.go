@@ -1,16 +1,20 @@
 package main
 
 import (
+	"fmt"
 	"github.com/zhangyiming748/ConvertVideo/constant"
 	"github.com/zhangyiming748/ConvertVideo/conv"
 	"github.com/zhangyiming748/ConvertVideo/mediainfo"
+	"github.com/zhangyiming748/ConvertVideo/sql"
 	"github.com/zhangyiming748/ConvertVideo/util"
 	"io"
 	"log/slog"
 	"os"
+	"strings"
 )
 
 func main() {
+	sql.SetEngine()
 	go util.ExitAfterRun()
 	if direction := os.Getenv("direction"); direction == "" {
 		slog.Info("$direction为空,使用默认值", slog.String("$direction", constant.GetDirection()))
@@ -19,14 +23,6 @@ func main() {
 		slog.Info("$direction不为空", slog.String("$direction", direction))
 	}
 
-	if level := os.Getenv("level"); level == "" {
-		slog.Info("$level为空,使用默认值", slog.String("$level", constant.GetLevel()))
-		setLog(constant.GetLevel())
-	} else {
-		constant.SetLevel(level)
-		slog.Info("$level不为空", slog.String("$level", level))
-		setLog(constant.GetLevel())
-	}
 	if root := os.Getenv("root"); root == "" {
 		slog.Info("$root为空,使用默认值", slog.String("$root", constant.GetRoot()))
 	} else {
@@ -38,6 +34,14 @@ func main() {
 	} else {
 		constant.SetTo(to)
 		slog.Info("$to不为空", slog.String("$to", to))
+	}
+	if level := os.Getenv("level"); level == "" {
+		slog.Info("$level为空,使用默认值", slog.String("$level", constant.GetLevel()))
+		setLog(constant.GetLevel())
+	} else {
+		constant.SetLevel(level)
+		slog.Info("$level不为空", slog.String("$level", level))
+		setLog(constant.GetLevel())
 	}
 	files := util.GetAllFiles(constant.Root)
 	switch constant.To {
@@ -85,8 +89,9 @@ func setLog(level string) {
 			Level:     slog.LevelDebug, // slog 默认日志级别是 info
 		}
 	}
-	file := "ConVideo.log"
-	logf, err := os.OpenFile(file, os.O_RDWR|os.O_CREATE, 0770)
+	fp := strings.Join([]string{constant.GetRoot(), "ConVideo.log"}, string(os.PathSeparator))
+	fmt.Printf("数据库位置%v\n", fp)
+	logf, err := os.OpenFile(fp, os.O_RDWR|os.O_CREATE, 0770)
 	if err != nil {
 		panic(err)
 	}

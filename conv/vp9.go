@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/zhangyiming748/ConvertVideo/mediainfo"
 	"github.com/zhangyiming748/ConvertVideo/replace"
+	"github.com/zhangyiming748/ConvertVideo/sql"
 	"github.com/zhangyiming748/ConvertVideo/util"
 	"log/slog"
 	"os"
@@ -14,6 +15,8 @@ import (
 
 func ProcessVideo2VP9(in mediainfo.BasicInfo) {
 	in.InsertVideoInfo()
+	c := new(sql.Conv)
+	defer c.SetOne()
 	var (
 		width  int
 		height int
@@ -22,6 +25,7 @@ func ProcessVideo2VP9(in mediainfo.BasicInfo) {
 		slog.Debug("跳过当前已经在h265/vp9目录中的文件", slog.String("文件名", in.FullPath))
 		return
 	}
+	safeDelete := false
 	FrameCount := ""
 	for _, v := range in.VInfo.Media.Track {
 		if v.Type == "Video" {
@@ -41,11 +45,14 @@ func ProcessVideo2VP9(in mediainfo.BasicInfo) {
 		if err := recover(); err != nil {
 			slog.Error("处理视频失败", slog.Any("错误", err))
 		} else {
-			slog.Info("处理视频成功", slog.String("文件名", in.FullPath))
-			if err = os.Remove(in.FullPath); err != nil {
-				slog.Warn("删除失败", slog.Any("源文件", in.FullPath), slog.Any("错误", err))
-			} else {
-				slog.Debug("删除成功", slog.Any("源文件", in.FullName))
+			//如果可以安全删除
+			if safeDelete {
+				slog.Info("处理视频成功", slog.String("文件名", in.FullPath))
+				if err = os.Remove(in.FullPath); err != nil {
+					slog.Warn("删除失败", slog.Any("源文件", in.FullPath), slog.Any("错误", err))
+				} else {
+					slog.Debug("删除成功", slog.Any("源文件", in.FullName))
+				}
 			}
 		}
 	}()
@@ -86,6 +93,20 @@ func ProcessVideo2VP9(in mediainfo.BasicInfo) {
 	aftersize, _ := util.GetSize(mp4)
 	sub, _ := util.GetDiffSize(originsize, aftersize)
 	fmt.Printf("savesize: %f MB\n", sub)
+	//todo 如果新文件比源文件还大 不删除源文件
+	if aftersize < originsize {
+		safeDelete = true
+	}
+
+	c.Src = in.FullPath
+	c.Dst = mp4
+	c.SrcSize = originsize
+	c.DstSize = aftersize
+	if !safeDelete {
+		c.IsBigger = true
+	} else {
+		c.IsBigger = false
+	}
 
 	slog.Info(fmt.Sprintf("本次转码完成，文件大小减少 %f MB\n", sub))
 

@@ -10,6 +10,6 @@ func init() {
 }
 func TestSetOne(t *testing.T) {
 	c := new(Conv)
-	c.OriginName = "1"
+	c.SrcName = "1"
 	c.SetOne()
 }

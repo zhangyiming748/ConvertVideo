@@ -14,15 +14,12 @@ import (
 )
 
 func main() {
-	sql.SetEngine()
-	go util.ExitAfterRun()
 	if direction := os.Getenv("direction"); direction == "" {
 		slog.Info("$direction为空,使用默认值", slog.String("$direction", constant.GetDirection()))
 	} else {
 		constant.SetDirection(direction)
 		slog.Info("$direction不为空", slog.String("$direction", direction))
 	}
-
 	if root := os.Getenv("root"); root == "" {
 		slog.Info("$root为空,使用默认值", slog.String("$root", constant.GetRoot()))
 	} else {
@@ -43,7 +40,9 @@ func main() {
 		slog.Info("$level不为空", slog.String("$level", level))
 		setLog(constant.GetLevel())
 	}
+	sql.SetEngine()
 	files := util.GetAllFiles(constant.Root)
+	fmt.Printf("符合条件的文件:%v\n", files)
 	switch constant.To {
 	case "vp9":
 		for _, file := range files {

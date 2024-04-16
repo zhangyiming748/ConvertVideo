@@ -1,5 +1,5 @@
 version: '3.9'
-name: conv
+name: conv_video
 services:
   conv:
     container_name: 'conv'

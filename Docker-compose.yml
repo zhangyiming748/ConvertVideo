@@ -6,6 +6,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      cache_from: []
     volumes:
       - '/path/to/video:/data'
     deploy:

@@ -53,7 +53,7 @@ func WriteByLine(fp string, s []string) {
 */
 
 func GetAllFiles(root string) (files []string) {
-	patterns := []string{"webm", "mkv", "m4v", "mp4", "mov", "avi", "wmv", "ts", "rmvb", "wma", "avi", "flv", "rmvb", "mpg", "f4v"}
+	patterns := []string{"webm", "m4v", "mp4", "mov", "avi", "wmv", "ts", "rmvb", "wma", "avi", "flv", "rmvb", "mpg", "f4v"}
 	for _, pattern := range patterns {
 		files = append(files, getFilesByExtension(root, pattern)...)
 	}

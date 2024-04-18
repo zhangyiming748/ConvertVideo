@@ -52,6 +52,10 @@ func main() {
 		for _, file := range files {
 			conv.RotateVideo(*mediainfo.GetBasicInfo(file), constant.GetDirection())
 		}
+	case "merge":
+		for _, file := range files {
+			conv.MkvWithAss(*mediainfo.GetBasicInfo(file))
+		}
 	default:
 		os.Exit(0)
 	}

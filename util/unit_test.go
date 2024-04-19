@@ -11,3 +11,10 @@ func TestGetAllFiles(t *testing.T) {
 		t.Log(file)
 	}
 }
+func TestGetCrf(t *testing.T) {
+	code := "h265"
+	width := 1080
+	height := 1920
+	crf := GetCrf(code, width, height)
+	t.Log(crf)
+}

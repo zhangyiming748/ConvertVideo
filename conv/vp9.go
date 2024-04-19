@@ -80,14 +80,16 @@ func ProcessVideo2VP9(in mediainfo.BasicInfo) {
 	slog.Debug("调试", slog.String("输入文件", in.FullPath), slog.String("输出文件", mp4))
 	crf := util.GetCrf("vp9", width, height)
 	cmd := exec.Command("ffmpeg", "-i", in.FullPath, "-c:v", "libvpx-vp9", "-crf", crf, "-c:a", "libvorbis", "-ac", "1", "-map_chapters", "-1", mp4)
-	if width > 1920 && height > 1920 {
+	if width > 1920 || height > 1920 {
 		slog.Warn("视频大于1080P需要使用其他程序先处理视频尺寸", slog.Any("原视频", in))
 		ResizeVideo(in)
 		return
 	}
 	slog.Info("生成的命令", slog.String("command", fmt.Sprint(cmd)))
 	msg := fmt.Sprintf("当前正在处理的视频总帧数:%v", FrameCount)
-	util.ExecCommand(cmd, msg)
+	if p := util.ExecCommand(cmd, msg); p != nil {
+		os.Exit(-1)
+	}
 	slog.Debug("视频编码运行完成")
 
 	originsize, _ := util.GetSize(in.FullPath)

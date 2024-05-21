@@ -1,23 +1,21 @@
-FROM golang:1.22.2-bookworm
+FROM golang:1.22.3-alpine3.19
 # 已经测试过alpine
 LABEL authors="zen"
-RUN cp /etc/apt/sources.list.d/debian.sources /etc/apt/sources.list.d/debian.sources.bak
-RUN sed -i 's/deb.debian.org/mirrors4.tuna.tsinghua.edu.cn/g' /etc/apt/sources.list.d/debian.sources
-RUN apt update
-RUN apt install -y dos2unix
+# docker exec -it test ash
+# docker run -dit --name test --rm -v '/media/zen/Windows 11/Users/zen/Github/ConvertVideo:/app' golang:1.22.3-alpine3.19 ash
+RUN cp /etc/apk/repositories /etc/apk/repositories.bak
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors4.tuna.tsinghua.edu.cn/g' /etc/apk/repositories
+RUN apk update
 RUN go env -w GO111MODULE=on
 RUN go env -w GOPROXY=https://goproxy.cn,direct
 RUN go env -w GOBIN=/root/go/bin
 RUN mkdir -p /root/app
 WORKDIR /root/app
 COPY . .
-RUN dos2unix /root/app/install-retry.sh
-RUN chmod +x /root/app/install-retry.sh
-RUN /root/app/install-retry.sh ffmpeg nano mediainfo build-essential
+RUN apk add ffmpeg mediainfo build-base
 RUN go build -o /usr/local/bin/conv main.go
 RUN chmod +x /usr/local/bin/conv
 WORKDIR /usr/local/bin
 CMD ["conv"]
-# docker build  -t videos:3 .
-# docker run --name video -d -v /d/backup/.telegram:/data videos:3
-# docker run -itd  --cpus=1 --memory=2048M --name test -v /f/large/bodysuit:/data test:5
+# docker build -t videos:latest .
+# docker run -dit --rm --name vp9 -e root=/data -e to=vp9 -e level=Debug -v /media/zen/swap/pikpak/telegram:/data videos:latest

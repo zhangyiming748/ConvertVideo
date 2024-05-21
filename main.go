@@ -5,7 +5,6 @@ import (
 	"github.com/zhangyiming748/ConvertVideo/constant"
 	"github.com/zhangyiming748/ConvertVideo/conv"
 	"github.com/zhangyiming748/ConvertVideo/mediainfo"
-	"github.com/zhangyiming748/ConvertVideo/sql"
 	"github.com/zhangyiming748/ConvertVideo/util"
 	"io"
 	"log/slog"
@@ -41,8 +40,7 @@ func main() {
 		slog.Info("$level不为空", slog.String("$level", level))
 		setLog(constant.GetLevel())
 	}
-	sql.SetEngine()
-
+	constant.SetCpuNums()
 	err := filepath.Walk(constant.GetRoot(), func(p string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err

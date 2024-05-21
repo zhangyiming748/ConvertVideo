@@ -2,10 +2,11 @@ package conv
 
 import (
 	"fmt"
+	"github.com/zhangyiming748/ConvertVideo/constant"
 	"github.com/zhangyiming748/ConvertVideo/mediainfo"
 	"github.com/zhangyiming748/ConvertVideo/replace"
-	"github.com/zhangyiming748/ConvertVideo/sql"
 	"github.com/zhangyiming748/ConvertVideo/util"
+	"github.com/zhangyiming748/FastMediaInfo"
 	"log/slog"
 	"os"
 	"os/exec"
@@ -15,54 +16,24 @@ import (
 
 func ProcessVideo2VP9(in mediainfo.BasicInfo) {
 	in.InsertVideoInfo()
-	c := new(sql.Conv)
-	defer c.SetOne()
-	var (
-		width  int
-		height int
-	)
+	mi := FastMediaInfo.GetStandMediaInfo(in.FullPath)
 	if strings.Contains(in.FullPath, "h265") || strings.Contains(in.FullPath, "vp9") {
 		slog.Debug("跳过当前已经在h265/vp9目录中的文件", slog.String("文件名", in.FullPath))
 		return
 	}
-	safeDelete := false
-	FrameCount := ""
-	for _, v := range in.VInfo.Media.Track {
-		if v.Type == "Video" {
-			vinfo := v
-			slog.Info("编码", slog.String("Format", vinfo.Format), slog.String("CodecID", vinfo.CodecID))
-			if vinfo.Format == "HEVC" || vinfo.CodecID == "hvc1" || vinfo.Format == "vp09" || vinfo.CodecID == "vp09" {
-				slog.Info("跳过已经转码的视频")
-				return
-			}
-			width, _ = strconv.Atoi(vinfo.Width)
-			height, _ = strconv.Atoi(vinfo.Height)
-			slog.Info("获取帧数", slog.String("当前视频帧数", vinfo.FrameCount))
-			FrameCount = vinfo.FrameCount
-		}
+	FrameCount := mi.Video.FrameCount
+	if mi.Video.Format == "HEVC" || mi.Video.Format == "vp09" {
+		slog.Info("跳过已经转码的视频")
+		return
 	}
-	defer func() {
-		if err := recover(); err != nil {
-			slog.Error("处理视频失败", slog.Any("错误", err))
-		} else {
-			//如果可以安全删除
-			if safeDelete {
-				slog.Info("处理视频成功", slog.String("文件名", in.FullPath))
-				if err = os.Remove(in.FullPath); err != nil {
-					slog.Warn("删除失败", slog.Any("源文件", in.FullPath), slog.Any("错误", err))
-				} else {
-					slog.Debug("删除成功", slog.Any("源文件", in.FullName))
-				}
-			}
-		}
-	}()
-
-	//slog.Debug("文件信息", slog.Any("info", in))
-
+	if mi.Video.CodecID == "hvc1" || mi.Video.CodecID == "vp09" {
+		slog.Info("跳过已经转码的视频")
+		return
+	}
 	slog.Debug("fullname", slog.String("fullname", in.FullName))
 	middle := "vp9"
-	if err := os.Mkdir(strings.Join([]string{in.PurgePath, middle}, string(os.PathSeparator)), 0777); err != nil {
-		if strings.Contains(err.Error(), "file exists") {
+	if exist := os.Mkdir(strings.Join([]string{in.PurgePath, middle}, string(os.PathSeparator)), 0777); exist != nil {
+		if strings.Contains(exist.Error(), "file exists") {
 			slog.Debug("输出文件夹已存在")
 		}
 	} else {
@@ -78,8 +49,16 @@ func ProcessVideo2VP9(in mediainfo.BasicInfo) {
 	slog.Debug("", slog.String("out", out), slog.String("extName", in.PurgeExt))
 	mp4 := strings.Replace(out, in.PurgeExt, "mp4", -1)
 	slog.Debug("调试", slog.String("输入文件", in.FullPath), slog.String("输出文件", mp4))
-	crf := util.GetCrf("vp9", width, height)
-	cmd := exec.Command("ffmpeg", "-i", in.FullPath, "-c:v", "libvpx-vp9", "-crf", crf, "-c:a", "libvorbis", "-ac", "1", "-map_chapters", "-1", mp4)
+	var (
+		width, _  = strconv.Atoi(mi.Video.Width)
+		height, _ = strconv.Atoi(mi.Video.Height)
+	)
+	crf := FastMediaInfo.GetCRF("vp9", width, height)
+	if crf == "" {
+		crf = "31"
+		slog.Warn("没有查询到crf", slog.String("使用默认crf", crf))
+	}
+	cmd := exec.Command("ffmpeg", "-threads", constant.GetCpuNums(), "-i", in.FullPath, "-c:v", "libvpx-vp9", "-crf", crf, "-c:a", "libvorbis", "-ac", "1", "-map_chapters", "-1", "-threads", constant.GetCpuNums(), mp4)
 	if width > 1920 || height > 1920 {
 		slog.Warn("视频大于1080P需要使用其他程序先处理视频尺寸", slog.Any("原视频", in))
 		ResizeVideo(in)
@@ -87,30 +66,25 @@ func ProcessVideo2VP9(in mediainfo.BasicInfo) {
 	}
 	slog.Info("生成的命令", slog.String("command", fmt.Sprint(cmd)))
 	msg := fmt.Sprintf("当前正在处理的视频总帧数:%v", FrameCount)
-	if p := util.ExecCommand(cmd, msg); p != nil {
-		os.Exit(-1)
+	if err := util.ExecCommand(cmd, msg); err != nil {
+		return
+	} else {
+		slog.Info("命令成功执行,删除源文件", slog.String("command", fmt.Sprint(cmd)))
 	}
 	slog.Debug("视频编码运行完成")
-
 	originsize, _ := util.GetSize(in.FullPath)
 	aftersize, _ := util.GetSize(mp4)
 	sub, _ := util.GetDiffSize(originsize, aftersize)
 	fmt.Printf("savesize: %f MB\n", sub)
-	//todo 如果新文件比源文件还大 不删除源文件
+	//如果新文件比源文件还大 不删除源文件
 	if aftersize < originsize {
-		safeDelete = true
+		err := os.Remove(in.FullPath)
+		if err != nil {
+			slog.Warn("删除失败", slog.String("文件", in.FullPath))
+			return
+		} else {
+			slog.Info("删除成功", slog.String("文件", in.FullPath))
+		}
 	}
-
-	c.Src = in.FullPath
-	c.Dst = mp4
-	c.SrcSize = originsize
-	c.DstSize = aftersize
-	if !safeDelete {
-		c.IsBigger = true
-	} else {
-		c.IsBigger = false
-	}
-
 	slog.Info(fmt.Sprintf("本次转码完成，文件大小减少 %f MB\n", sub))
-
 }

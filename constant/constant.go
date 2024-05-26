@@ -6,9 +6,9 @@ import (
 )
 
 var (
-	Root      string = "/mnt/e/pikpak/hidden" // 工作目录 如果为空  默认/data
-	To        string = "vp9"                  // 转换到的编码 如果为空  默认vp9
-	Level     string = "Debug"                //日志的输出等级
+	Root string = "/media/zen/ugreen/其他/Agent Red Girl/Animations" // 工作目录 如果为空  默认/data
+	//To        string = "vp9"                  // 转换到的编码 如果为空  默认vp9
+	To        string = "merge" // 转换到的编码 如果为空  默认vp9
 	Direction string = "ToRight"
 	CpuNums   string
 )
@@ -38,10 +38,4 @@ func GetTo() string {
 }
 func SetTo(s string) {
 	To = s
-}
-func GetLevel() string {
-	return Level
-}
-func SetLevel(s string) {
-	Level = s
 }

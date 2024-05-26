@@ -11,11 +11,19 @@ RUN go env -w GOPROXY=https://goproxy.cn,direct
 RUN go env -w GOBIN=/root/go/bin
 RUN mkdir -p /root/app
 WORKDIR /root/app
+
 COPY . .
-RUN apk add ffmpeg mediainfo build-base
+RUN apk add opencore-amr-dev libvorbis-dev mediainfo build-base xz wget ca-certificates dialog make cmake alpine-sdk gcc nasm yasm aom-dev libvpx-dev libwebp-dev x264-dev x265-dev dav1d-dev xvidcore-dev fdk-aac-dev opencore-amr-dev libvorbis-dev
+
 RUN go build -o /usr/local/bin/conv main.go
 RUN chmod +x /usr/local/bin/conv
-WORKDIR /usr/local/bin
+
+RUN wget https://ffmpeg.org/releases/ffmpeg-7.0.1.tar.xz
+RUN tar xvf ffmpeg-7.0.1.tar.xz
+WORKDIR /root/app/ffmpeg-7.0.1
+RUN ./configure  --prefix=/usr/local --enable-pthreads --enable-pic --arch=amd64 --enable-shared --enable-libaom --enable-gpl --enable-nonfree --enable-postproc --enable-avfilter --enable-pthreads --enable-libx264 --enable-libx265 --enable-libwebp --enable-libvpx --enable-libvorbis --enable-libfdk-aac --enable-libdav1d --enable-libxvid --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-version3 --enable-ffplay
+RUN make -j
+RUN make install
 CMD ["conv"]
 # docker build -t videos:latest .
 # docker run -dit --rm --name vp9 -e root=/data -e to=vp9 -e level=Debug -v /media/zen/swap/pikpak/telegram:/data videos:latest

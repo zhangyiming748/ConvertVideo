@@ -1,0 +1,47 @@
+# .github/workflows/release.yml
+name: xz_releaser
+
+on:
+  pull_request:
+  push:
+    # run only against tags
+    tags:
+      - "xz*"
+    # branches: [ "master" ]
+
+permissions:
+  contents: write
+  # packages: write
+  # issues: write
+
+jobs:
+  dockerbuilder:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: go
+        run: go build -o conv main.go
+      - name: pwd
+        run: pwd
+      - name: build
+        run: docker build -t videos:latest ${{ github.workspace }}
+      - name: saveSpace
+        run: rm -rf /opt/hostedtoolcache
+      - name: export
+        run: docker save videos:latest | xz --threads=0 -9e --memlimit-compress=0 > ConvertVideos.tar.xz
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: images
+          path: ${{ github.workspace }}/ConvertVideos.tar.xz
+          compression-level: 9 # max compression
+      - name: release
+        run: |
+          time_var=$(date +"%Y%m%d-%H%M%S")
+          gh release create $time_var --generate-notes
+          gh release upload $time_var ${{ github.workspace }}/ConvertVideos.tar.xz
+        env:
+          GH_TOKEN: ${{ github.token }}

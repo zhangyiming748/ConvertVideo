@@ -2,7 +2,7 @@ package util
 
 import (
 	"errors"
-	"log/slog"
+	"log"
 	"os"
 )
 
@@ -31,7 +31,7 @@ func GetSize(fp string) (int64, error) {
 */
 func GetDiffSize(src, dst int64) (float64, error) {
 	if dst >= src {
-		slog.Warn("处理后的文件比源文件更大,放弃删除", slog.Int64("源文件大小", src), slog.Int64("目标文件大小", dst))
+		log.Printf("处理后的文件比源文件更大,放弃删除\t源文件大小:%v\t目标文件大小:%v\n", src, dst)
 		return 0, errors.New("处理后的文件比源文件更大,放弃删除")
 	}
 	save := float64(src-dst) / MB

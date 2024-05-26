@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
-	"log/slog"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -15,7 +15,7 @@ func ReadByLine(fp string) []string {
 	fi, err := os.Open(fp)
 	if err != nil {
 		fmt.Printf("Error: %s\n", err)
-		slog.Warn("按行读文件出错")
+		log.Println("按行读文件出错")
 		return []string{}
 	}
 	defer fi.Close()
@@ -67,7 +67,7 @@ func getFilesByExtension(root, extension string) []string {
 	var files []string
 	defer func() {
 		if err := recover(); err != nil {
-			slog.Error("获取文件出错")
+			log.Println("获取文件出错")
 			os.Exit(-1)
 		}
 	}()
@@ -86,14 +86,14 @@ func IsExist(fp string) bool {
 	if err != nil {
 		// 如果 err 不为 nil，说明文件不存在或者出现其他错误
 		if os.IsNotExist(err) {
-			slog.Debug("文件不存在", slog.String("文件名", fileInfo.Name()))
+			log.Printf("文件不存在:%v\n", fileInfo.Name())
 			return false
 		} else {
-			slog.Debug("其他错误", slog.String("文件名", fileInfo.Name()))
+			log.Printf("其他错误:%v\n", fileInfo.Name())
 		}
 		return false
 	}
 	// 如果 err 为 nil，说明文件存在
-	slog.Debug("文件存在", slog.String("文件名", fileInfo.Name()))
+	log.Printf("文件存在:%v\n", fileInfo.Name())
 	return true
 }

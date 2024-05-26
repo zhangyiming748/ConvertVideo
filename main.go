@@ -9,7 +9,6 @@ import (
 	"github.com/zhangyiming748/ConvertVideo/util"
 	"io"
 	"log"
-	"log/slog"
 	"os"
 	"path/filepath"
 )
@@ -22,10 +21,10 @@ func main() {
 		log.Printf("$direction不为空,修改为%v\n", constant.GetDirection())
 	}
 	if root := os.Getenv("root"); root == "" {
-		log.Printf("$root为空,使用默认值%v\n", slog.String("$root", constant.GetRoot()))
+		log.Printf("$root为空,使用默认值%v\n", constant.GetRoot())
 	} else {
 		constant.SetRoot(root)
-		log.Printf("$root不为空,修改为%v\n", slog.String("$root", constant.GetRoot()))
+		log.Printf("$root不为空,修改为%v\n", constant.GetRoot())
 	}
 	if to := os.Getenv("to"); to == "" {
 		log.Printf("$to为空,使用默认值%v\n", constant.GetTo())

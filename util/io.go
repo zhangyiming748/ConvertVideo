@@ -79,3 +79,21 @@ func getFilesByExtension(root, extension string) []string {
 	})
 	return files
 }
+func IsExist(fp string) bool {
+	// 使用 os.Stat 函数获取文件信息
+	fileInfo, err := os.Stat(fp)
+	// 检查错误
+	if err != nil {
+		// 如果 err 不为 nil，说明文件不存在或者出现其他错误
+		if os.IsNotExist(err) {
+			slog.Debug("文件不存在", slog.String("文件名", fileInfo.Name()))
+			return false
+		} else {
+			slog.Debug("其他错误", slog.String("文件名", fileInfo.Name()))
+		}
+		return false
+	}
+	// 如果 err 为 nil，说明文件存在
+	slog.Debug("文件存在", slog.String("文件名", fileInfo.Name()))
+	return true
+}

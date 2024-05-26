@@ -3,6 +3,7 @@ package conv
 import (
 	"fmt"
 	"github.com/zhangyiming748/ConvertVideo/mediainfo"
+	"github.com/zhangyiming748/ConvertVideo/util"
 	"os"
 	"os/exec"
 	"path"
@@ -16,7 +17,7 @@ mkv添加ass
 func MkvWithAss(in mediainfo.BasicInfo) {
 	srt := strings.Replace(in.FullPath, in.PurgeExt, "srt", 1)
 	//ass := strings.Replace(file.FullPath, ".mp4", ".ass", 1)
-	if isExist(srt) {
+	if util.IsExist(srt) {
 		// output := strings.Replace(file, ".mp4", "_with_subtitle.mp4", 1)
 		ext := path.Ext(in.FullPath)
 		output := strings.Replace(in.FullPath, ext, "_with_subtitle.mkv", 1)
@@ -35,16 +36,6 @@ func MkvWithAss(in mediainfo.BasicInfo) {
 	}
 }
 
-func isExist(fp string) bool {
-	_, err := os.Stat(fp)
-	if os.IsNotExist(err) {
-		fmt.Printf("%s 对应的字幕文件不存在\n", fp)
-		return false
-	} else {
-		fmt.Printf("%s 对应的字幕文件存在\n", fp)
-		return true
-	}
-}
 func getFilesWithExtension(folderPath string, extension string) ([]string, error) {
 	var files []string
 	err := filepath.Walk(folderPath, func(path string, info os.FileInfo, err error) error {

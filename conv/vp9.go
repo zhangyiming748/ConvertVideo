@@ -21,6 +21,7 @@ func ProcessVideo2VP9(in mediainfo.BasicInfo) {
 		slog.Debug("跳过当前已经在h265/vp9目录中的文件", slog.String("文件名", in.FullPath))
 		return
 	}
+
 	FrameCount := mi.Video.FrameCount
 	if mi.Video.Format == "HEVC" || mi.Video.Format == "vp09" {
 		slog.Info("跳过已经转码的视频")
@@ -59,6 +60,13 @@ func ProcessVideo2VP9(in mediainfo.BasicInfo) {
 		slog.Warn("没有查询到crf", slog.String("使用默认crf", crf))
 	}
 	cmd := exec.Command("ffmpeg", "-threads", constant.GetCpuNums(), "-i", in.FullPath, "-c:v", "libvpx-vp9", "-crf", crf, "-c:a", "libvorbis", "-ac", "1", "-map_chapters", "-1", "-threads", constant.GetCpuNums(), mp4)
+	cut := strings.Join([]string{in.PurgePath, "cut.txt"}, string(os.PathSeparator))
+	if util.IsExist(cut) {
+		split := util.ReadByLine(cut)
+		ss := split[0]
+		to := split[1]
+		cmd = exec.Command("ffmpeg", "-threads", constant.GetCpuNums(), "-i", in.FullPath, "-ss", ss, "-to", to, "-c:v", "libvpx-vp9", "-crf", crf, "-c:a", "libvorbis", "-ac", "1", "-map_chapters", "-1", "-threads", constant.GetCpuNums(), mp4)
+	}
 	if width > 1920 || height > 1920 {
 		slog.Warn("视频大于1080P需要使用其他程序先处理视频尺寸", slog.Any("原视频", in))
 		ResizeVideo(in)

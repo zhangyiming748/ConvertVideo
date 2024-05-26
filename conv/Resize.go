@@ -1,11 +1,10 @@
 package conv
 
 import (
-	"fmt"
 	"github.com/zhangyiming748/ConvertVideo/mediainfo"
 	"github.com/zhangyiming748/ConvertVideo/replace"
 	"github.com/zhangyiming748/ConvertVideo/util"
-	"log/slog"
+	"log"
 	"os"
 	"os/exec"
 	"strconv"
@@ -18,23 +17,17 @@ func ResizeVideo(in mediainfo.BasicInfo) {
 	height, _ := strconv.Atoi(vinfo.Height)
 
 	if width > height {
-		slog.Debug("横屏视频", slog.Any("视频信息", in))
+		log.Printf("横屏视频:%v\n", in)
 		Resize(in, "1920x1080")
 	} else if width < height {
-		slog.Debug("竖屏视频", slog.Any("视频信息", in))
+		log.Printf("竖屏视频:%v\n", in)
 		Resize(in, "1080x1920")
 	} else {
-		slog.Debug("正方形视频", slog.Any("视频信息", in))
+		log.Printf("正方形视频:%v\n", in)
 		Resize(in, "1920x1920")
 	}
 }
 func Resize(in mediainfo.BasicInfo, p string) {
-	defer func() {
-		if err := recover(); err != nil {
-			slog.Warn("错误", slog.String("文件信息", in.FullPath))
-		}
-	}()
-
 	dst := in.PurgePath // 文件所在路径 不包含最后一个路径分隔符
 	if strings.Contains(in.PurgePath, "resize") {
 		return
@@ -43,9 +36,9 @@ func Resize(in mediainfo.BasicInfo, p string) {
 	fname := replace.ForFileName(in.PurgeName)                            //仅文件名
 	fname = strings.Join([]string{fname, "mp4"}, ".")
 	os.Mkdir(dst, 0777)
-	slog.Debug("新建文件夹", slog.String("全名", dst))
+	log.Printf("输出文件夹:%v\n", dst)
 	out := strings.Join([]string{dst, fname}, string(os.PathSeparator))
-	slog.Debug("io", slog.String("源文件:", in.FullPath), slog.String("输出文件:", out))
+	log.Printf("源文件:%v\t目标文件:%v\n", in.FullPath, out)
 	var cmd *exec.Cmd
 	switch p {
 	case "1920x1080":
@@ -55,17 +48,17 @@ func Resize(in mediainfo.BasicInfo, p string) {
 	case "1920x1920":
 		cmd = exec.Command("ffmpeg", "-i", in.FullPath, "-strict", "-2", "-vf", "scale=1920:1920", "-c:v", "libvpx-vp9", "-crf", "31", "-c:a", "libvorbis", "-ac", "1", out)
 	default:
-		slog.Warn("不正常的视频源", slog.Any("视频信息", in.FullPath))
+		log.Fatalf("不正常的视频源:%v\n", in.FullPath)
 	}
-	slog.Debug("ffmpeg", slog.String("生成的命令", fmt.Sprintf("生成的命令是:%s", cmd)))
+	log.Printf("生成的最终命令:%v\n", cmd.String())
 	if err := util.ExecCommand(cmd, ""); err != nil {
-		slog.Warn("resize发生错误", slog.String("命令原文", fmt.Sprint(cmd)), slog.String("错误原文", fmt.Sprint(err)), slog.String("源文件", in.FullPath))
+		log.Printf("resize发生错误:%v\t命令原文", err, cmd.String())
 		return
 	}
 
 	if err := os.Remove(in.FullPath); err != nil {
-		slog.Warn("删除失败", slog.String("源文件", in.FullPath), slog.Any("错误文本", err))
+		log.Printf("删除失败:%n", err)
 	} else {
-		slog.Warn("删除成功", slog.String("源文件", in.FullPath))
+		log.Printf("删除成功:%v\n", in.FullPath)
 	}
 }

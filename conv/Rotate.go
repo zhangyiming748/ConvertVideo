@@ -5,7 +5,7 @@ import (
 	"github.com/zhangyiming748/ConvertVideo/mediainfo"
 	"github.com/zhangyiming748/ConvertVideo/replace"
 	"github.com/zhangyiming748/ConvertVideo/util"
-	"log/slog"
+	"log"
 	"os"
 	"os/exec"
 	"strconv"
@@ -17,18 +17,8 @@ func RotateVideo(in mediainfo.BasicInfo, direction string) {
 	if strings.Contains(in.PurgePath, "rotate") {
 		return
 	}
-
-	defer func() {
-		if err := recover(); err != nil {
-			if err = os.Remove(in.FullPath); err != nil {
-				slog.Warn("删除失败", slog.Any("源文件", in.FullPath), slog.Any("错误", err))
-			} else {
-				slog.Debug("删除成功", slog.Any("源文件", in.FullPath))
-			}
-		}
-	}()
 	in.InsertVideoInfo()
-	slog.Info("插入细节信息后", slog.Any("结构体", in))
+	log.Printf("插入细节信息后:%v\n", in)
 	dst := strings.Join([]string{in.PurgePath, "rotate"}, string(os.PathSeparator))
 	os.Mkdir(dst, os.ModePerm)
 	FrameCount := ""
@@ -59,11 +49,15 @@ func RotateVideo(in mediainfo.BasicInfo, direction string) {
 		if v.Type == "Video" {
 			width, _ = strconv.Atoi(v.Width)
 			height, _ = strconv.Atoi(v.Height)
-			slog.Info("分辨率", slog.Int("宽", width), slog.Int("高", height))
+			log.Printf("分辨率:%v x %v\n", width, height)
 		}
 	}
 	crf := util.GetCrf("h265", width, height)
-	slog.Warn(fmt.Sprintf("获取到的crf=%v\n", crf))
+	if crf == "" {
+		crf = "31"
+		log.Printf("没有查询到crf,使用默认crf:%v\n", crf)
+	}
+	log.Printf("获取到的crf=%v\n", crf)
 	cmd = exec.Command("ffmpeg", "-y", "-i", in.FullPath, "-vf", transport, "-c:v", "libx265", "-crf", crf, "-c:a", "libvorbis", "-ac", "1", "-map_chapters", "-1", out)
 	err := util.ExecCommand(cmd, FrameCount)
 	if err != nil {
@@ -73,7 +67,15 @@ func RotateVideo(in mediainfo.BasicInfo, direction string) {
 	aftersize, _ := util.GetSize(out)
 	sub, _ := util.GetDiffSize(originsize, aftersize)
 	fmt.Printf("savesize: %f MB\n", sub)
-
-	slog.Info(fmt.Sprintf("本次转码完成，文件大小减少 %f MB\n", sub))
+	if aftersize < originsize {
+		if err = os.Remove(in.FullPath); err != nil {
+			log.Printf("删除失败:%v\n", in.FullPath)
+		} else {
+			log.Printf("删除成功:%v\n", in.FullPath)
+		}
+	} else {
+		log.Printf("转码后文件:%v\t大于源文件:%v\n,保留不删除", out, in.FullPath)
+	}
+	log.Printf("本次转码完成，文件大小减少 %f MB\n", sub)
 
 }

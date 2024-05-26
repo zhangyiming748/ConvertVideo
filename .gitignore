@@ -11,3 +11,4 @@ vendor
 go.work
 *.log
 *.db
+*.json

@@ -1,4 +1,4 @@
-FROM golang:1.22.3-alpine3.19
+FROM golang:1.22.3-alpine3.20
 # 已经测试过alpine
 LABEL authors="zen"
 # docker exec -it test ash

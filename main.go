@@ -6,7 +6,7 @@ import (
 	"github.com/zhangyiming748/ConvertVideo/conv"
 	"github.com/zhangyiming748/ConvertVideo/mediainfo"
 	"github.com/zhangyiming748/ConvertVideo/util"
-"gopkg.in/natefinch/lumberjack.v2"
+	"gopkg.in/natefinch/lumberjack.v2"
 	"io"
 	"log"
 	"os"
@@ -14,6 +14,9 @@ import (
 	"strings"
 )
 
+func init() {
+	setLog()
+}
 func main() {
 	if direction := os.Getenv("direction"); direction == "" {
 		log.Printf("$direction为空,使用默认值%v\n", constant.GetDirection())
@@ -67,7 +70,7 @@ func main() {
 	fmt.Printf("符合条件的文件:%v\n", files)
 
 }
-func setLog(level string) {
+func setLog() {
 	// 创建一个用于写入文件的Logger实例
 	fileLogger := &lumberjack.Logger{
 		Filename:   strings.Join([]string{constant.GetRoot(), "mylog.log"}, string(os.PathSeparator)),

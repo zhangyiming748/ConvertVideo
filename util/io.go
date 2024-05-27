@@ -81,19 +81,24 @@ func getFilesByExtension(root, extension string) []string {
 }
 func IsExist(fp string) bool {
 	// 使用 os.Stat 函数获取文件信息
-	fileInfo, err := os.Stat(fp)
-	// 检查错误
-	if err != nil {
-		// 如果 err 不为 nil，说明文件不存在或者出现其他错误
-		if os.IsNotExist(err) {
-			log.Printf("文件不存在:%v\n", fileInfo.Name())
-			return false
-		} else {
-			log.Printf("其他错误:%v\n", fileInfo.Name())
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Printf("错误信息:%v\n", err)
 		}
+	}()
+	if f, err := os.Stat(fp); err == nil {
+		fmt.Println("Path exists")
+		if f.IsDir() {
+			fmt.Println("Path is a directory")
+		} else {
+			fmt.Println("Path is a file")
+		}
+		return true
+	} else if os.IsNotExist(err) {
+		fmt.Println("Path does not exist")
+		return false
+	} else {
+		fmt.Println("Error occurred:", err)
 		return false
 	}
-	// 如果 err 为 nil，说明文件存在
-	log.Printf("文件存在:%v\n", fileInfo.Name())
-	return true
 }

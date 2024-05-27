@@ -31,7 +31,7 @@ func ProcessVideo2VP9(in mediainfo.BasicInfo) {
 		log.Println("跳过已经转码的视频")
 		return
 	}
-	log.Printf("fullname", in.FullName)
+	log.Printf("fullname:%v\n", in.FullName)
 	middle := "vp9"
 	if exist := os.Mkdir(strings.Join([]string{in.PurgePath, middle}, string(os.PathSeparator)), 0777); exist != nil {
 		if strings.Contains(exist.Error(), "file exists") {

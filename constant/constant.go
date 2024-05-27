@@ -7,7 +7,7 @@ import (
 
 var (
 	Root string = "/media/zen/ugreen/其他/Agent Red Girl/Animations" // 工作目录 如果为空  默认/data
-	//To        string = "vp9"                  // 转换到的编码 如果为空  默认vp9
+	//To   string = "vp9"                      // 转换到的编码 如果为空  默认vp9
 	To        string = "merge" // 转换到的编码 如果为空  默认vp9
 	Direction string = "ToRight"
 	CpuNums   string

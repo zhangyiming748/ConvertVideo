@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/natefinch/lumberjack"
 	"github.com/zhangyiming748/ConvertVideo/constant"
 	"github.com/zhangyiming748/ConvertVideo/conv"
 	"github.com/zhangyiming748/ConvertVideo/mediainfo"
 	"github.com/zhangyiming748/ConvertVideo/util"
+"gopkg.in/natefinch/lumberjack.v2"
 	"io"
 	"log"
 	"os"

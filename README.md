@@ -65,3 +65,40 @@ ffmpeg -i input.mp4 -c:v libx264 -cpu-used 8 output.mp4
 9. **veryslow**：最慢预设，编码速度最慢，输出质量最高。
 
 您可以根据需要选择适合您的情况的预设值，以在编码过程中平衡速度和质量。
+
+# ffmpeg中libvps-vp9的-tile-columns  参数
+在 FFmpeg 中，`-tile-columns` 参数用于设置 libvpx-vp9 编码器的 tile 列数。Tile 是一种并行处理单元，可以将视频帧分割成多个 tile 进行并行编码，从而提高编码效率和速度。
+
+您可以使用 `-tile-columns` 参数来指定 libvpx-vp9 编码器使用的 tile 列数。例如，如果您希望设置 tile 列数为 4，您可以这样使用 `-tile-columns 4` 参数：
+
+```bash
+ffmpeg -i input.mp4 -c:v libvpx-vp9 -tile-columns 4 output.webm
+```
+
+通过设置合适的 `-tile-columns` 参数值，您可以根据您的系统配置和需求来优化 libvpx-vp9 编码器的性能。请注意，设置较大的 tile 列数可能会增加编码器的复杂性，但也有可能提高编码速度和效率。
+
+如果您需要进一步的帮助或有其他问题，请提供更多关于您的需求和环境的信息，这样我可以为您提供更具体的指导。
+# ffmpeg中libvps-vp9的-frame-parallel 参数
+在 FFmpeg 中，`-frame-parallel` 参数用于设置 libvpx-vp9 编码器的帧并行模式。帧并行是一种并行处理技术，可以同时处理多个帧，从而提高编码效率和速度。
+
+您可以使用 `-frame-parallel` 参数来启用或禁用 libvpx-vp9 编码器的帧并行模式。例如，如果您希望启用帧并行模式，您可以这样使用 `-frame-parallel 1` 参数：
+
+```bash
+ffmpeg -i input.mp4 -c:v libvpx-vp9 -frame-parallel 1 output.webm
+```
+
+通过设置 `-frame-parallel` 参数，您可以根据您的系统配置和需求来优化 libvpx-vp9 编码器的性能。启用帧并行模式可以提高编码速度，特别是在多核 CPU 系统上。
+
+请注意，启用帧并行模式可能会增加编码器的复杂性，但通常会提高编码效率。如果您需要进一步的帮助或有其他问题，请提供更多关于您的需求和环境的信息，这样我可以为您提供更具体的指导。
+# ffmpeg中libvps-vp9的-tile-columns  参数取值范围
+在 FFmpeg 中，对于 libvpx-vp9 编码器的 `-tile-columns` 参数，其取值范围通常是 0 到 6。这意味着您可以将 `-tile-columns` 参数设置为 0 到 6 之间的整数值来指定 libvpx-vp9 编码器使用的 tile 列数。
+
+具体来说，取值范围如下：
+- `-tile-columns 0`：禁用 tile 列分割，即不使用 tile 并行编码。
+- `-tile-columns 1`：使用 1 列 tile 进行并行编码。
+- `-tile-columns 2`：使用 2 列 tile 进行并行编码。
+- 依此类推，最大值为 `-tile-columns 6`，表示使用 6 列 tile 进行并行编码。
+
+通过设置合适的 `-tile-columns` 参数值，您可以根据您的系统配置和需求来优化 libvpx-vp9 编码器的性能。请注意，选择合适的 tile 列数可以提高编码速度和效率，但也可能会增加编码器的复杂性。
+
+如果您需要进一步的帮助或有其他问题，请提供更多关于您的需求和环境的信息，这样我可以为您提供更具体的指导。

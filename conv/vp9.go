@@ -12,9 +12,12 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+	"sync"
 )
 
-func ProcessVideo2VP9(in mediainfo.BasicInfo) {
+func ProcessVideo2VP9(in mediainfo.BasicInfo, wg *sync.WaitGroup, ch chan struct{}) {
+	defer wg.Done()
+	ch <- struct{}{}
 	in.InsertVideoInfo()
 	mi := FastMediaInfo.GetStandMediaInfo(in.FullPath)
 	if strings.Contains(in.FullPath, "h265") || strings.Contains(in.FullPath, "vp9") {
@@ -93,4 +96,5 @@ func ProcessVideo2VP9(in mediainfo.BasicInfo) {
 		log.Printf("转码后文件:%v\t大于源文件:%v\n", mp4, in.FullPath)
 	}
 	log.Printf("本次转码完成，文件大小减少 %f MB\n", sub)
+	<-ch
 }

@@ -12,12 +12,14 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 )
 
 func init() {
 	setLog()
 }
 func main() {
+	go util.ExitAfterRun()
 	if direction := os.Getenv("direction"); direction == "" {
 		log.Printf("$direction为空,使用默认值%v\n", constant.GetDirection())
 	} else {
@@ -37,6 +39,8 @@ func main() {
 		log.Printf("$to不为空,修改为%v\n", constant.GetTo())
 	}
 	constant.SetCpuNums()
+	var wg sync.WaitGroup
+	sem := make(chan struct{}, constant.GetMaxConcurrency())
 	err := filepath.Walk(constant.GetRoot(), func(p string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
@@ -51,7 +55,8 @@ func main() {
 			for _, file := range files {
 				switch constant.To {
 				case "vp9":
-					conv.ProcessVideo2VP9(*mediainfo.GetBasicInfo(file))
+					wg.Add(1)
+					conv.ProcessVideo2VP9(*mediainfo.GetBasicInfo(file), &wg, sem)
 				case "rotate":
 					conv.RotateVideo(*mediainfo.GetBasicInfo(file), constant.GetDirection())
 				case "merge":
@@ -68,7 +73,7 @@ func main() {
 	}
 	files := util.GetAllFiles(constant.Root)
 	fmt.Printf("符合条件的文件:%v\n", files)
-
+	wg.Wait()
 }
 func setLog() {
 	// 创建一个用于写入文件的Logger实例

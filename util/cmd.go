@@ -43,6 +43,10 @@ func ExecCommand(c *exec.Cmd, msg string) (e error) {
 		log.Printf("命令端获取到退出状态,命令结束后退出:%v\n", c.String())
 		os.Exit(0)
 	}
+	if GetExitStatus() {
+		log.Printf("命令端获取到退出状态,命令结束后退出:%v\n", c.String())
+		os.Exit(0)
+	}
 	return nil
 }
 

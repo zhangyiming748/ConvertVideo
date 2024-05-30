@@ -25,7 +25,6 @@ func ExitAfterRun() {
 			fmt.Printf("You entered is %T\t%v", input, input)
 			if input == "q\n" || input == "q\r\n" {
 				log.Println("接收到q")
-				//ExitAfterDone = true
 				SetExitStatus(true)
 				log.Printf("退出状态改变,新值=%v\n", ExitAfterDone)
 			}

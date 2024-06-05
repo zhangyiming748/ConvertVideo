@@ -61,6 +61,8 @@ func main() {
 					conv.RotateVideo(*mediainfo.GetBasicInfo(file), constant.GetDirection())
 				case "merge":
 					conv.MkvWithAss(*mediainfo.GetBasicInfo(file))
+				case "clip":
+					conv.ProcessVideo2clip(*mediainfo.GetBasicInfo(file))
 				default:
 					os.Exit(0)
 				}

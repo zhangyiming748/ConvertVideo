@@ -72,7 +72,7 @@ func ProcessVideo2H265(in mediainfo.BasicInfo) {
 		ResizeVideo(in)
 		return
 	}
-	log.Printf("生成的命令", cmd.String())
+	log.Printf("生成的命令:%v\n", cmd.String())
 	msg := fmt.Sprintf("当前正在处理的视频总帧数:%v", FrameCount)
 	util.ExecCommand(cmd, msg)
 	log.Println("视频编码运行完成")

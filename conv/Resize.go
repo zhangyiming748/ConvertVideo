@@ -52,7 +52,7 @@ func Resize(in mediainfo.BasicInfo, p string) {
 	}
 	log.Printf("生成的最终命令:%v\n", cmd.String())
 	if err := util.ExecCommand(cmd, ""); err != nil {
-		log.Printf("resize发生错误:%v\t命令原文", err, cmd.String())
+		log.Printf("resize发生错误:%v\t命令原文:%v\n", err, cmd.String())
 		return
 	}
 

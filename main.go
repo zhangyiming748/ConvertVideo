@@ -13,6 +13,7 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"time"
 )
 
 func init() {
@@ -20,6 +21,12 @@ func init() {
 }
 func main() {
 	go util.ExitAfterRun()
+	t := new(util.ProcessDuration)
+	t.SetStart(time.Now())
+	defer func() {
+		log.Printf("程序总用时:%v\n", t.GetDuration().Minutes())
+	}()
+
 	if direction := os.Getenv("direction"); direction == "" {
 		log.Printf("$direction为空,使用默认值%v\n", constant.GetDirection())
 	} else {
@@ -76,6 +83,7 @@ func main() {
 	files := util.GetAllFiles(constant.Root)
 	fmt.Printf("符合条件的文件:%v\n", files)
 	wg.Wait()
+	t.SetEnd(time.Now())
 }
 func setLog() {
 	// 创建一个用于写入文件的Logger实例

@@ -57,7 +57,7 @@ func ProcessVideo2clip(in mediainfo.BasicInfo) {
 			clip := strings.Replace(mp4, ".mp4", part, 1)
 			ss := split[i]
 			to := split[i+1]
-			cmd := exec.Command("ffmpeg", "-threads", constant.GetCpuNums(), "-i", in.FullPath, "-cpu-used", "8", "-ss", ss, "-to", to, "-c:v", "libvpx-vp9", "-crf", crf, "-c:a", "libopus", "-vbr", "on", "-ac", "1", "-map_chapters", "-1", "-threads", constant.GetCpuNums(), clip)
+			cmd := exec.Command("ffmpeg", "-i", in.FullPath, "-ss", ss, "-to", to, "-c:v", "libvpx-vp9", "-crf", crf, "-c:a", "libopus", "-b:a", "128k", "-vbr", "0", "-ac", "1", "-map_chapters", "-1", "-threads", constant.GetCpuNums(), clip)
 			log.Printf("当前生成的命令:%v\n", cmd.String())
 			msg := fmt.Sprintf("当前正在处理的视频总帧数:%v", FrameCount)
 			if err := util.ExecCommand(cmd, msg); err != nil {

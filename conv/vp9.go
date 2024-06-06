@@ -2,7 +2,6 @@ package conv
 
 import (
 	"fmt"
-	"github.com/zhangyiming748/ConvertVideo/constant"
 	"github.com/zhangyiming748/ConvertVideo/mediainfo"
 	"github.com/zhangyiming748/ConvertVideo/replace"
 	"github.com/zhangyiming748/ConvertVideo/util"
@@ -56,16 +55,13 @@ func ProcessVideo2VP9(in mediainfo.BasicInfo, wg *sync.WaitGroup, ch chan struct
 		crf = "31"
 		log.Printf("没有查询到crf,使用默认crf:%v\n", crf)
 	}
-	/*
-		ffmpeg -threads 8 -i in.mp4 -cpu-used 8 -preset medium -c:v libvpx-vp9 -tile-columns 6 -frame-paralle 1 -crf 31 -c:a libopus -ac 1 -map_chapters -1 -threads 8 -cpu-used 8 -preset medium out.mp4"
-	*/
-	cmd := exec.Command("ffmpeg", "-threads", constant.GetCpuNums(), "-i", in.FullPath, "-c:v", "libvpx-vp9", "-crf", crf, "-c:a", "libopus", "-vbr", "on", "-ac", "1", "-map_chapters", "-1", "-threads", constant.GetCpuNums(), mp4)
+	cmd := exec.Command("ffmpeg", "-i", in.FullPath, "-c:v", "libvpx-vp9", "-crf", crf, "-c:a", "libopus", "-b:a", "128k", "-vbr", "0", "-ac", "1", "-map_chapters", "-1", mp4)
 	cut := strings.Join([]string{in.PurgePath, "cut.txt"}, string(os.PathSeparator))
 	if util.IsExist(cut) {
 		split := util.ReadByLine(cut)
 		ss := split[0]
 		to := split[1]
-		cmd = exec.Command("ffmpeg", "-threads", constant.GetCpuNums(), "-i", in.FullPath, "-cpu-used", "8", "-ss", ss, "-to", to, "-c:v", "libvpx-vp9", "-crf", crf, "-c:a", "libopus", "-vbr", "on", "-ac", "1", "-map_chapters", "-1", "-threads", constant.GetCpuNums(), mp4)
+		cmd = exec.Command("ffmpeg", "-i", in.FullPath, "-cpu-used", "8", "-ss", ss, "-to", to, "-c:v", "libvpx-vp9", "-crf", crf, "-c:a", "libopus", "-b:a", "128k", "-vbr", "0", "-ac", "1", "-map_chapters", "-1", mp4)
 	}
 	if width > 1920 || height > 1920 {
 		log.Printf("视频大于1080P需要使用其他程序先处理视频尺寸:%v\n", in)

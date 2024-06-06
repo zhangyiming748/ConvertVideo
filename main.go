@@ -12,7 +12,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"sync"
 	"time"
 )
 
@@ -46,8 +45,6 @@ func main() {
 		log.Printf("$to不为空,修改为%v\n", constant.GetTo())
 	}
 	constant.SetCpuNums()
-	var wg sync.WaitGroup
-	sem := make(chan struct{}, constant.GetMaxConcurrency())
 	err := filepath.Walk(constant.GetRoot(), func(p string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
@@ -62,8 +59,7 @@ func main() {
 			for _, file := range files {
 				switch constant.To {
 				case "vp9":
-					wg.Add(1)
-					conv.ProcessVideo2VP9(*mediainfo.GetBasicInfo(file), &wg, sem)
+					conv.ProcessVideo2VP9(*mediainfo.GetBasicInfo(file))
 				case "rotate":
 					conv.RotateVideo(*mediainfo.GetBasicInfo(file), constant.GetDirection())
 				case "merge":
@@ -82,7 +78,6 @@ func main() {
 	}
 	files := util.GetAllFiles(constant.Root)
 	fmt.Printf("符合条件的文件:%v\n", files)
-	wg.Wait()
 	t.SetEnd(time.Now())
 }
 func setLog() {
@@ -102,7 +97,7 @@ func setLog() {
 
 	// 同时输出到文件和控制台
 	log.SetOutput(io.MultiWriter(fileLogger, consoleLogger.Writer()))
-
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	// 在这里开始记录日志
 
 	// 记录更多日志...

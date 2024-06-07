@@ -6,9 +6,9 @@ import (
 )
 
 var (
-	Root string = "E:\\pikpak\\早漏\\cut" // 工作目录 如果为空  默认/data
-	To   string = "clip"                // 转换到的编码 如果为空  默认vp9
-	//To string = "vp9" // 转换到的编码 如果为空  默认vp9
+	Root string = "E:\\pikpak\\telegram" // 工作目录 如果为空  默认/data
+	//To   string = "clip"                // 转换到的编码 如果为空  默认vp9
+	To string = "vp9" // 转换到的编码 如果为空  默认vp9
 	//To        string = "merge" // 转换到的编码 如果为空  默认vp9
 	Direction      string = "ToRight"
 	CpuNums        string

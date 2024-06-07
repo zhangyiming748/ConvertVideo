@@ -23,7 +23,7 @@ func main() {
 	t := new(util.ProcessDuration)
 	t.SetStart(time.Now())
 	defer func() {
-		log.Printf("程序总用时:%v\n", t.GetDuration().Minutes())
+		log.Printf("程序总用时:%v分\n", t.GetDuration().Minutes())
 	}()
 
 	if direction := os.Getenv("direction"); direction == "" {

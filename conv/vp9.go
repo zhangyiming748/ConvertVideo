@@ -53,7 +53,7 @@ func ProcessVideo2VP9(in mediainfo.BasicInfo) {
 		log.Printf("没有查询到crf,使用默认crf:%v\n", crf)
 	}
 	cmd := exec.Command("ffmpeg", "-i", in.FullPath, "-c:v", "libvpx-vp9", "-crf", crf, "-c:a", "libopus", "-b:a", "128k", "-vbr", "0", "-ac", "1", "-map_chapters", "-1", mp4)
-	cut := strings.Join([]string{in.PurgePath, "cut.txt"}, string(os.PathSeparator))
+	cut := strings.Replace(in.FullPath, in.PurgeExt, "cut", 1)
 	if util.IsExist(cut) {
 		split := util.ReadByLine(cut)
 		ss := split[0]

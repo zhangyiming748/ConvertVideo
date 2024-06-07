@@ -46,7 +46,7 @@ func ProcessVideo2clip(in mediainfo.BasicInfo) {
 		crf = "31"
 		log.Printf("没有查询到crf,使用默认crf:%v\n", crf)
 	}
-	cut := strings.Join([]string{in.PurgePath, "cut.txt"}, string(os.PathSeparator))
+	cut := strings.Replace(in.FullPath, in.PurgeExt, "cut", 1)
 	if util.IsExist(cut) {
 		split := util.ReadByLine(cut)
 		lenght := len(split)

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/zhangyiming748/ConvertVideo/constant"
 	"github.com/zhangyiming748/ConvertVideo/conv"
 	"github.com/zhangyiming748/ConvertVideo/mediainfo"
@@ -54,7 +53,7 @@ func main() {
 			if err != nil {
 				return err
 			}
-			fmt.Printf("准备处理的文件夹%v\n", info.Name())
+			log.Printf("准备处理的文件夹%v\n", info.Name())
 			files := util.GetAllFiles(absPath)
 			for _, file := range files {
 				switch constant.To {
@@ -74,10 +73,10 @@ func main() {
 		return nil
 	})
 	if err != nil {
-		fmt.Println("Error:", err)
+		log.Println("Error:", err)
 	}
 	files := util.GetAllFiles(constant.Root)
-	fmt.Printf("符合条件的文件:%v\n", files)
+	log.Printf("符合条件的文件:%v\n", files)
 	t.SetEnd(time.Now())
 }
 func setLog() {

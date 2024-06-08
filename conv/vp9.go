@@ -58,7 +58,7 @@ func ProcessVideo2VP9(in mediainfo.BasicInfo) {
 		split := util.ReadByLine(cut)
 		ss := split[0]
 		to := split[1]
-		cmd = exec.Command("ffmpeg", "-i", in.FullPath, "-cpu-used", "8", "-ss", ss, "-to", to, "-c:v", "libvpx-vp9", "-crf", crf, "-c:a", "libopus", "-b:a", "128k", "-vbr", "0", "-ac", "1", "-map_chapters", "-1", mp4)
+		cmd = exec.Command("ffmpeg", "-i", in.FullPath, "-ss", ss, "-to", to, "-c:v", "libvpx-vp9", "-crf", crf, "-c:a", "libopus", "-b:a", "128k", "-vbr", "0", "-ac", "1", "-map_chapters", "-1", mp4)
 	}
 	if width > 1920 || height > 1920 {
 		log.Printf("视频大于1080P需要使用其他程序先处理视频尺寸:%v\n", in)

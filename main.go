@@ -10,7 +10,9 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -18,6 +20,7 @@ func init() {
 	setLog()
 }
 func main() {
+	go NumsOfGoroutine()
 	go util.ExitAfterRun()
 	t := new(util.ProcessDuration)
 	t.SetStart(time.Now())
@@ -43,7 +46,6 @@ func main() {
 		constant.SetTo(to)
 		log.Printf("$to不为空,修改为%v\n", constant.GetTo())
 	}
-	constant.SetCpuNums()
 	err := filepath.Walk(constant.GetRoot(), func(p string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
@@ -55,10 +57,24 @@ func main() {
 			}
 			log.Printf("准备处理的文件夹%v\n", info.Name())
 			files := util.GetAllFiles(absPath)
+			cpus := constant.GetCpuNums()
+			if cpus > constant.MaxCPU {
+				cpus = constant.MaxCPU
+			}
+			var wg sync.WaitGroup
+			ch := make(chan struct{}, cpus/4)
+			log.Printf("CPU个数:%d\t协程缓冲区:%d\n", constant.GetCpuNums(), cpus/4)
 			for _, file := range files {
 				switch constant.To {
 				case "vp9":
-					conv.ProcessVideo2VP9(*mediainfo.GetBasicInfo(file))
+					go func() {
+						ch <- struct{}{}
+						wg.Add(1)
+						conv.ProcessVideo2VP9(*mediainfo.GetBasicInfo(file))
+						wg.Done()
+						<-ch
+					}()
+
 				case "rotate":
 					conv.RotateVideo(*mediainfo.GetBasicInfo(file), constant.GetDirection())
 				case "merge":
@@ -69,6 +85,7 @@ func main() {
 					os.Exit(0)
 				}
 			}
+			wg.Wait()
 		}
 		return nil
 	})
@@ -103,4 +120,10 @@ func setLog() {
 
 	// 关闭日志文件
 	//defer fileLogger.Close()
+}
+func NumsOfGoroutine() {
+	for {
+		log.Printf("当前程序运行时协程个数:%d\n", runtime.NumGoroutine())
+		time.Sleep(1 * time.Second)
+	}
 }

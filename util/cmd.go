@@ -28,8 +28,7 @@ func ExecCommand(c *exec.Cmd, msg string) (e error) {
 		_, err := stdout.Read(tmp)
 		t := string(tmp)
 		t = strings.Replace(t, "\u0000", "", -1)
-		fmt.Println(t)
-		fmt.Println(msg)
+		fmt.Printf("%v\n%v\n", t, msg)
 		if err != nil {
 			break
 		}

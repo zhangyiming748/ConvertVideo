@@ -2,28 +2,25 @@ package constant
 
 import (
 	"runtime"
-	"strconv"
 )
 
 var (
 	Root string = "E:\\pikpak\\telegram" // 工作目录 如果为空  默认/data
-	//To   string = "clip"                // 转换到的编码 如果为空  默认vp9
+	//To   string = "clip"                      // 转换到的编码 如果为空  默认vp9
 	To string = "vp9" // 转换到的编码 如果为空  默认vp9
 	//To        string = "merge" // 转换到的编码 如果为空  默认vp9
-	Direction      string = "ToRight"
-	CpuNums        string
-	MaxConcurrency int = 1
+	Direction string = "ToRight"
+	CpuNums   int    = runtime.NumCPU() // 核心数
 )
 
-func GetMaxConcurrency() int {
-	return MaxConcurrency
-}
-func GetCpuNums() string {
+const (
+	MaxCPU = 12
+)
+
+func GetCpuNums() int {
 	return CpuNums
 }
-func SetCpuNums() {
-	CpuNums = strconv.Itoa(runtime.NumCPU() / 2)
-}
+
 func GetDirection() string {
 	return Direction
 }

@@ -12,6 +12,7 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 func ProcessVideo2clip(in mediainfo.BasicInfo) {
@@ -47,24 +48,38 @@ func ProcessVideo2clip(in mediainfo.BasicInfo) {
 		log.Printf("没有查询到crf,使用默认crf:%v\n", crf)
 	}
 	cut := strings.Replace(in.FullPath, in.PurgeExt, "cut", 1)
+	var wg sync.WaitGroup
+	cpus := constant.GetCpuNums()
+	if cpus > constant.MaxCPU {
+		cpus = constant.MaxCPU
+	}
+	ch := make(chan struct{}, cpus/4)
+	log.Printf("CPU个数:%d\t协程缓冲区:%d\n", constant.GetCpuNums(), cpus)
 	if util.IsExist(cut) {
 		split := util.ReadByLine(cut)
-		lenght := len(split)
+		length := len(split)
 		count := 0
-		for i := 0; i < lenght-1; i += 2 {
+		for i := 0; i < length-1; i += 2 {
 			count++
+			wg.Add(1)
 			part := strings.Join([]string{"part", strconv.Itoa(count), ".mp4"}, "")
 			clip := strings.Replace(mp4, ".mp4", part, 1)
 			ss := split[i]
 			to := split[i+1]
-			cmd := exec.Command("ffmpeg", "-i", in.FullPath, "-ss", ss, "-to", to, "-c:v", "libvpx-vp9", "-crf", crf, "-c:a", "libopus", "-b:a", "128k", "-vbr", "0", "-ac", "1", "-map_chapters", "-1", "-threads", constant.GetCpuNums(), clip)
-			log.Printf("当前生成的命令:%v\n", cmd.String())
-			msg := fmt.Sprintf("当前正在处理的视频总帧数:%v", FrameCount)
-			if err := util.ExecCommand(cmd, msg); err != nil {
-				return
-			} else {
-				log.Println("视频编码运行完成")
-			}
+			go func() {
+				ch <- struct{}{}
+				defer wg.Done()
+				cmd := exec.Command("ffmpeg", "-i", in.FullPath, "-ss", ss, "-to", to, "-c:v", "libvpx-vp9", "-crf", crf, "-c:a", "libopus", "-b:a", "128k", "-vbr", "0", "-ac", "1", "-map_chapters", "-1", clip)
+				log.Printf("当前生成的命令:%v\n", cmd.String())
+				msg := fmt.Sprintf("当前正在处理的视频:%v总帧数:%v", in.FullPath, FrameCount)
+				if err := util.ExecCommand(cmd, msg); err != nil {
+					return
+				} else {
+					log.Println("视频编码运行完成")
+				}
+				<-ch
+			}()
 		}
 	}
+	wg.Wait()
 }

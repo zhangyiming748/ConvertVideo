@@ -2,7 +2,6 @@ package conv
 
 import (
 	"fmt"
-	"github.com/zhangyiming748/ConvertVideo/constant"
 	"github.com/zhangyiming748/ConvertVideo/mediainfo"
 	"github.com/zhangyiming748/ConvertVideo/util"
 	"github.com/zhangyiming748/FastMediaInfo"
@@ -34,7 +33,7 @@ func MkvWithAss(in mediainfo.BasicInfo) {
 		ext := path.Ext(in.FullPath)
 		output := strings.Replace(in.FullPath, ext, "_with_subtitle.mkv", 1)
 		var cmd *exec.Cmd
-		cmd = exec.Command("ffmpeg", "-threads", constant.GetCpuNums(), "-i", in.FullPath, "-i", srt, "-c:v", "libvpx-vp9", "-crf", crf, "-c:a", "libopus", "-ac", "1", "-c:s", "ass", "-threads", constant.GetCpuNums(), output)
+		cmd = exec.Command("ffmpeg", "-i", in.FullPath, "-i", srt, "-c:v", "libvpx-vp9", "-crf", crf, "-c:a", "libopus", "-ac", "1", "-c:s", "ass", "-threads", output)
 		log.Printf("生成的命令: %s\n", cmd.String())
 		msg := fmt.Sprintf("当前正在处理的视频总帧数:%v", FrameCount)
 		err := util.ExecCommand(cmd, msg)

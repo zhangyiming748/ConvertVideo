@@ -67,14 +67,13 @@ func main() {
 			for _, file := range files {
 				switch constant.To {
 				case "vp9":
+					ch <- struct{}{}
 					go func() {
-						ch <- struct{}{}
 						wg.Add(1)
 						conv.ProcessVideo2VP9(*mediainfo.GetBasicInfo(file))
 						wg.Done()
 						<-ch
 					}()
-
 				case "rotate":
 					conv.RotateVideo(*mediainfo.GetBasicInfo(file), constant.GetDirection())
 				case "merge":
@@ -123,7 +122,7 @@ func setLog() {
 }
 func NumsOfGoroutine() {
 	for {
-		log.Printf("当前程序运行时协程个数:%d\n", runtime.NumGoroutine())
+		fmt.Printf("当前程序运行时协程个数:%d\n", runtime.NumGoroutine())
 		time.Sleep(1 * time.Second)
 	}
 }

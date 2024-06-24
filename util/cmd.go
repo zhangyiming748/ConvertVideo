@@ -28,7 +28,7 @@ func ExecCommand(c *exec.Cmd, msg string) (e error) {
 		_, err := stdout.Read(tmp)
 		t := string(tmp)
 		t = strings.Replace(t, "\u0000", "", -1)
-		fmt.Printf("%v\n%v\n", t, msg)
+		fmt.Printf("\r%v\n%v\n", t, msg)
 		if err != nil {
 			break
 		}
@@ -37,14 +37,11 @@ func ExecCommand(c *exec.Cmd, msg string) (e error) {
 		log.Printf("命令执行中产生错误:%v\n", err)
 		return err
 	}
-
 	if isExitLabel() {
-		log.Printf("命令端获取到退出状态,命令结束后退出:%v\n", c.String())
-		os.Exit(0)
+		log.Fatalf("命令端获取到退出状态,命令结束后退出:%v\n", c.String())
 	}
 	if GetExitStatus() {
-		log.Printf("命令端获取到退出状态,命令结束后退出:%v\n", c.String())
-		os.Exit(0)
+		log.Fatalf("命令端获取到退出状态,命令结束后退出:%v\n", c.String())
 	}
 	return nil
 }
@@ -54,7 +51,6 @@ func ExecCommand(c *exec.Cmd, msg string) (e error) {
 */
 func isExitLabel() bool {
 	filePath := "/exit"
-
 	_, err := os.Stat(filePath)
 	if os.IsNotExist(err) {
 		fmt.Println("古希腊掌管退出信号的文件不存在")

@@ -5,9 +5,9 @@ import (
 )
 
 var (
-	Root string = "E:\\pikpak\\telegram" // 工作目录 如果为空  默认/data
+	Root string = "E:\\pikpak\\直播" // 工作目录 如果为空  默认/data
 	//To   string = "clip"                      // 转换到的编码 如果为空  默认vp9
-	To string = "vp9" // 转换到的编码 如果为空  默认vp9
+	To string = "lessvp9" // 转换到的编码 如果为空  默认vp9
 	//To        string = "merge" // 转换到的编码 如果为空  默认vp9
 	Direction string = "ToRight"
 	CpuNums   int    = runtime.NumCPU() // 核心数

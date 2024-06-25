@@ -125,7 +125,7 @@ func setLog() {
 }
 func NumsOfGoroutine() {
 	for {
-		fmt.Printf("当前程序运行时协程个数:%d\n", runtime.NumGoroutine())
+		fmt.Printf("\r当前程序运行时协程个数:%d\n", runtime.NumGoroutine())
 		time.Sleep(1 * time.Second)
 	}
 }

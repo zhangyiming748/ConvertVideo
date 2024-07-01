@@ -13,7 +13,6 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
-	"sync"
 	"time"
 )
 
@@ -62,19 +61,9 @@ func main() {
 			if cpus > constant.MaxCPU {
 				cpus = constant.MaxCPU
 			}
-			var wg sync.WaitGroup
-			ch := make(chan struct{}, cpus/4)
-			log.Printf("CPU个数:%d\t协程缓冲区:%d\n", constant.GetCpuNums(), cpus/4)
 			for _, file := range files {
-				wg.Add(1)
 				switch constant.To {
 				case "vp9":
-					ch <- struct{}{}
-					go func() {
-						conv.ProcessVideo2VP9(*mediainfo.GetBasicInfo(file))
-						<-ch
-					}()
-				case "lessvp9":
 					conv.ProcessVideo2VP9(*mediainfo.GetBasicInfo(file))
 				case "rotate":
 					conv.RotateVideo(*mediainfo.GetBasicInfo(file), constant.GetDirection())
@@ -85,9 +74,7 @@ func main() {
 				default:
 					log.Fatalf("$to=%v参数错误\n", constant.GetTo())
 				}
-				wg.Done()
 			}
-			wg.Wait()
 		}
 		return nil
 	})

@@ -1,18 +1,24 @@
 package util
 
 import (
+	"errors"
 	"fmt"
+	"github.com/schollz/progressbar/v3"
 	"log"
 	"os"
 	"os/exec"
-	"strings"
+	"regexp"
+	"strconv"
 )
 
 /*
 执行命令过程中可以循环打印消息
 */
-func ExecCommand(c *exec.Cmd, msg string) (e error) {
+func ExecCommand(c *exec.Cmd, totalFrame string) (e error) {
 	log.Printf("开始执行命令:%v\n", c.String())
+	total, _ := strconv.Atoi(totalFrame)
+	bar := progressbar.New(total)
+	defer bar.Finish()
 	stdout, err := c.StdoutPipe()
 	c.Stderr = c.Stdout
 	if err != nil {
@@ -27,8 +33,9 @@ func ExecCommand(c *exec.Cmd, msg string) (e error) {
 		tmp := make([]byte, 1024)
 		_, err := stdout.Read(tmp)
 		t := string(tmp)
-		t = strings.Replace(t, "\u0000", "", -1)
-		fmt.Printf("\r%v\n%v\n", t, msg)
+		if frame, none := GetFrameNum(t); none == nil {
+			bar.Set(frame)
+		}
 		if err != nil {
 			break
 		}
@@ -38,9 +45,6 @@ func ExecCommand(c *exec.Cmd, msg string) (e error) {
 		return err
 	}
 	if isExitLabel() {
-		log.Fatalf("命令端获取到退出状态,命令结束后退出:%v\n", c.String())
-	}
-	if GetExitStatus() {
 		log.Fatalf("命令端获取到退出状态,命令结束后退出:%v\n", c.String())
 	}
 	return nil
@@ -58,5 +62,16 @@ func isExitLabel() bool {
 	} else {
 		fmt.Println("古希腊掌管退出信号的文件存在")
 		return true
+	}
+}
+func GetFrameNum(s string) (int, error) {
+	re := regexp.MustCompile(`frame=\s*(\d+)`)
+	matches := re.FindStringSubmatch(s)
+	if len(matches) > 1 {
+		frameNumber := matches[1]
+		frame, _ := strconv.Atoi(frameNumber)
+		return frame, nil
+	} else {
+		return 0, errors.New("not found")
 	}
 }

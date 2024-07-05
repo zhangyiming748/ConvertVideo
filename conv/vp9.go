@@ -68,7 +68,7 @@ func ProcessVideo2VP9(in mediainfo.BasicInfo) {
 	log.Printf("生成的最终命令:%v\n", cmd.String())
 	msg := fmt.Sprintf("当前正在处理的视频%v\t总帧数:%v", in.FullPath, FrameCount)
 	log.Println(msg)
-	if err := util.ExecCommand(cmd, msg); err != nil {
+	if err := util.ExecCommand(cmd, FrameCount); err != nil {
 		return
 	} else {
 		log.Println("视频编码运行完成")

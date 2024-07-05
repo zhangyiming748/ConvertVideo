@@ -4,6 +4,7 @@ import (
 	"github.com/zhangyiming748/ConvertVideo/mediainfo"
 	"github.com/zhangyiming748/ConvertVideo/replace"
 	"github.com/zhangyiming748/ConvertVideo/util"
+	"github.com/zhangyiming748/FastMediaInfo"
 	"log"
 	"os"
 	"os/exec"
@@ -51,7 +52,8 @@ func Resize(in mediainfo.BasicInfo, p string) {
 		log.Fatalf("不正常的视频源:%v\n", in.FullPath)
 	}
 	log.Printf("生成的最终命令:%v\n", cmd.String())
-	if err := util.ExecCommand(cmd, ""); err != nil {
+	frameCount := FastMediaInfo.GetStandMediaInfo(in.FullPath).Video.FrameCount
+	if err := util.ExecCommand(cmd, frameCount); err != nil {
 		log.Printf("resize发生错误:%v\t命令原文:%v\n", err, cmd.String())
 		return
 	}

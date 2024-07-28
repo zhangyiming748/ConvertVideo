@@ -4,24 +4,17 @@ import (
 	"fmt"
 	"github.com/zhangyiming748/ConvertVideo/constant"
 	"github.com/zhangyiming748/ConvertVideo/conv"
+	mylog "github.com/zhangyiming748/ConvertVideo/log"
 	"github.com/zhangyiming748/ConvertVideo/mediainfo"
 	"github.com/zhangyiming748/ConvertVideo/util"
-	"gopkg.in/natefinch/lumberjack.v2"
-	"io"
 	"log"
 	"os"
 	"path/filepath"
 	"runtime"
-	"strings"
 	"time"
 )
 
-func init() {
-	setLog()
-}
 func main() {
-	go NumsOfGoroutine()
-	go util.ExitAfterRun()
 	t := new(util.ProcessDuration)
 	t.SetStart(time.Now())
 	defer func() {
@@ -46,6 +39,7 @@ func main() {
 		constant.SetTo(to)
 		log.Printf("$to不为空,修改为%v\n", constant.GetTo())
 	}
+	mylog.SetLog()
 	err := filepath.Walk(constant.GetRoot(), func(p string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
@@ -65,6 +59,8 @@ func main() {
 				switch constant.To {
 				case "vp9":
 					conv.ProcessVideo2VP9(*mediainfo.GetBasicInfo(file))
+				case "h265":
+					conv.ProcessVideo2H265(*mediainfo.GetBasicInfo(file))
 				case "rotate":
 					conv.RotateVideo(*mediainfo.GetBasicInfo(file), constant.GetDirection())
 				case "merge":
@@ -85,31 +81,7 @@ func main() {
 	log.Printf("符合条件的文件:%v\n", files)
 	t.SetEnd(time.Now())
 }
-func setLog() {
-	// 创建一个用于写入文件的Logger实例
-	fileLogger := &lumberjack.Logger{
-		Filename:   strings.Join([]string{constant.GetRoot(), "mylog.log"}, string(os.PathSeparator)),
-		MaxSize:    1, // MB
-		MaxBackups: 3,
-		MaxAge:     28, // days
-	}
 
-	// 创建一个用于输出到控制台的Logger实例
-	consoleLogger := log.New(os.Stdout, "CONSOLE: ", log.LstdFlags)
-
-	// 设置文件Logger
-	//log.SetOutput(fileLogger)
-
-	// 同时输出到文件和控制台
-	log.SetOutput(io.MultiWriter(fileLogger, consoleLogger.Writer()))
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
-	// 在这里开始记录日志
-
-	// 记录更多日志...
-
-	// 关闭日志文件
-	//defer fileLogger.Close()
-}
 func NumsOfGoroutine() {
 	for {
 		fmt.Printf("\r当前程序运行时协程个数:%d\n", runtime.NumGoroutine())

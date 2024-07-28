@@ -12,3 +12,4 @@ go.work
 *.log
 *.db
 *.json
+*.mp4

@@ -1,7 +1,6 @@
 package replace
 
 import (
-	"log"
 	"regexp"
 	"strings"
 )
@@ -57,7 +56,7 @@ func ForFileName(name string) string {
 			nStr = strings.Join([]string{nStr, string(v)}, "")
 		}
 	}
-	log.Printf("正则表达式匹配数字字母汉字:%v\n", nStr)
+	//log.Printf("正则表达式匹配数字字母汉字:%v\n", nStr)
 	return nStr
 }
 func Effective(s string) bool {

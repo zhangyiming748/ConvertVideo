@@ -21,6 +21,8 @@ func main() {
 		log.Printf("程序总用时:%v分\n", t.GetDuration().Minutes())
 	}()
 
+	constant.SetTransTitle(os.Getenv("trans"))
+
 	if direction := os.Getenv("direction"); direction == "" {
 		log.Printf("$direction为空,使用默认值%v\n", constant.GetDirection())
 	} else {

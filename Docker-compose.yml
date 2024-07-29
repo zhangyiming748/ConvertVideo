@@ -2,11 +2,8 @@ version: '3.9'
 name: conv_video
 services:
   conv:
-    container_name: 'conv'
-    build:
-      context: .
-      dockerfile: Dockerfile
-      cache_from: []
+    container_name: 'conv_video'
+    image: zhangyiming748/convertvideo:latest
     volumes:
       - '/path/to/video:/data'
     deploy:
@@ -16,6 +13,6 @@ services:
           cpus: '4'
     environment:
       - root=/data
-      - to=vp9
-      - level=Info
+      - to=h265
       - direction=ToRight
+      - trans = 0 # 0不翻译标题

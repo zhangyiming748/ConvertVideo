@@ -2,10 +2,11 @@ package conv
 
 import (
 	"fmt"
+	"github.com/zhangyiming748/ConvertVideo/constant"
 	"github.com/zhangyiming748/ConvertVideo/mediainfo"
 	"github.com/zhangyiming748/ConvertVideo/replace"
 	"github.com/zhangyiming748/ConvertVideo/util"
-	DeepLx "github.com/zhangyiming748/DeepLX"
+	"github.com/zhangyiming748/DeepLX"
 	"github.com/zhangyiming748/FastMediaInfo"
 	"log"
 	"os"
@@ -21,7 +22,6 @@ func ProcessVideo2H265(in mediainfo.BasicInfo) {
 		width  int
 		height int
 	)
-
 	mi := FastMediaInfo.GetStandMediaInfo(in.FullPath)
 	FrameCount := mi.Video.FrameCount
 	width, _ = strconv.Atoi(mi.Video.Width)
@@ -43,8 +43,10 @@ func ProcessVideo2H265(in mediainfo.BasicInfo) {
 		log.Println("创建输出文件夹")
 	}
 	dstPurgeName := replace.ForFileName(in.PurgeName) // 输入文件格式化后的新文件名
-	if dst, err := DeepLx.TranslateByDeepLX("auto", "zh", dstPurgeName, ""); err == nil {
-		dstPurgeName = dst
+	if constant.GetTransTitle() {
+		if dst, err := DeepLx.TranslateByDeepLX("auto", "zh", dstPurgeName, ""); err == nil {
+			dstPurgeName = dst
+		}
 	}
 	out := strings.Join([]string{in.PurgePath, string(os.PathSeparator), middle, string(os.PathSeparator), dstPurgeName, ".mp4"}, "")
 	defer func() {
@@ -70,4 +72,5 @@ func ProcessVideo2H265(in mediainfo.BasicInfo) {
 	sub, _ := util.GetDiffSize(originsize, aftersize)
 	fmt.Printf("savesize: %f MB\n", sub)
 	log.Printf("本次转码完成，文件大小减少 %f MB\n", sub)
+	os.Remove(in.FullPath)
 }

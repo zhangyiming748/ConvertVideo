@@ -5,6 +5,7 @@ import (
 	"github.com/zhangyiming748/ConvertVideo/mediainfo"
 	"github.com/zhangyiming748/ConvertVideo/replace"
 	"github.com/zhangyiming748/ConvertVideo/util"
+	DeepLx "github.com/zhangyiming748/DeepLX"
 	"github.com/zhangyiming748/FastMediaInfo"
 	"log"
 	"os"
@@ -42,6 +43,9 @@ func ProcessVideo2H265(in mediainfo.BasicInfo) {
 		log.Println("创建输出文件夹")
 	}
 	dstPurgeName := replace.ForFileName(in.PurgeName) // 输入文件格式化后的新文件名
+	if dst, err := DeepLx.TranslateByDeepLX("auto", "zh", dstPurgeName, ""); err == nil {
+		dstPurgeName = dst
+	}
 	out := strings.Join([]string{in.PurgePath, string(os.PathSeparator), middle, string(os.PathSeparator), dstPurgeName, ".mp4"}, "")
 	defer func() {
 		if err := recover(); err != nil {

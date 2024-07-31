@@ -7,8 +7,8 @@ RUN cp /etc/apk/repositories /etc/apk/repositories.bak
 #RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors4.tuna.tsinghua.edu.cn/g' /etc/apk/repositories
 RUN apk update
 RUN go env -w GO111MODULE=on
-RUN go env -w GOPROXY=https://goproxy.cn,direct
-RUN go env -w GOBIN=/root/go/bin
+#RUN go env -w GOPROXY=https://goproxy.cn,direct
+#RUN go env -w GOBIN=/root/go/bin
 RUN mkdir -p /root/app
 WORKDIR /root/app
 COPY . .

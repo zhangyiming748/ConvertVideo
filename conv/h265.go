@@ -65,7 +65,9 @@ func ProcessVideo2H265(in mediainfo.BasicInfo) {
 		return
 	}
 	log.Printf("生成的命令:%v\n", cmd.String())
-	util.ExecCommand(cmd, FrameCount)
+	if err := util.ExecCommand(cmd, FrameCount); err != nil {
+		return
+	}
 	log.Println("视频编码运行完成")
 	originsize, _ := util.GetSize(in.FullPath)
 	aftersize, _ := util.GetSize(mp4)

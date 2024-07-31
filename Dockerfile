@@ -29,4 +29,4 @@ WORKDIR /root/app
 RUN rm -rf ffmpeg-7.0.1.tar.xz ffmpeg-7.0.1
 CMD ["conv"]
 # docker build -t videos:latest .
-# docker run -dit --rm --name vp9 -e root=/data -e to=vp9 -e level=Debug -v /media/zen/swap/pikpak/telegram:/data videos:latest
+# docker run -dit --rm --name h265 -e root=/data -e to=h265 -v /home/zen/Videos:/data zhangyiming748/convertvideo:latest bash

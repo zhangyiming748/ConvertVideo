@@ -49,10 +49,10 @@ func ProcessVideo2H265(in mediainfo.BasicInfo) {
 	}
 	out := strings.Join([]string{in.PurgePath, string(os.PathSeparator), middle, string(os.PathSeparator), dstPurgeName, ".mp4"}, "")
 	mp4 := strings.Replace(out, in.PurgeExt, "mp4", -1)
-	crf := FastMediaInfo.GetCRF("h265", width, height)
-	cmd := exec.Command("ffmpeg", "-i", in.FullPath, "-c:v", "libx265", "-crf", crf, "-tag:v", "hvc1", "-c:a", "libopus", "-ac", "1", "-map_chapters", "-1", mp4)
+
+	cmd := exec.Command("ffmpeg", "-i", in.FullPath, "-c:v", "libx265", "-tag:v", "hvc1", "-c:a", "libopus", "-ac", "1", "-map_chapters", "-1", mp4)
 	if runtime.GOOS == "linux" && runtime.GOARCH == "arm64" {
-		cmd = exec.Command("ffmpeg", "-i", in.FullPath, "-threads", "1", "-c:v", "libx265", "-crf", crf, "-tag:v", "hvc1", "-c:a", "libopus", "-ac", "1", "-map_chapters", "-1", "-threads", "1", mp4)
+		cmd = exec.Command("ffmpeg", "-i", in.FullPath, "-threads", "1", "-c:v", "libx265", "-tag:v", "hvc1", "-c:a", "libopus", "-ac", "1", "-map_chapters", "-1", "-threads", "1", mp4)
 	}
 	if width > 1920 && height > 1920 {
 		log.Printf("视频大于1080P需要使用其他程序先处理视频尺寸:%v\n", in)

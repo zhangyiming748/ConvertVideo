@@ -67,7 +67,7 @@ func ProcessVideo2H265(in mediainfo.BasicInfo) {
 	originsize, _ := util.GetSize(in.FullPath)
 	aftersize, _ := util.GetSize(mp4)
 	sub, _ := util.GetDiffSize(originsize, aftersize)
-	log.Printf("转换前%fM转换后%fM节省%fM\n", originsize/util.MB, aftersize/util.MB, sub)
+	log.Printf("转换前%vM转换后%vM节省%vM\n", originsize/util.MB, aftersize/util.MB, sub)
 	if err := os.Remove(in.FullPath); err != nil {
 		log.Printf("删除失败:%v\n", in.FullPath)
 	} else {

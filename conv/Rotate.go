@@ -1,7 +1,6 @@
 package conv
 
 import (
-	"fmt"
 	"github.com/zhangyiming748/ConvertVideo/mediainfo"
 	"github.com/zhangyiming748/ConvertVideo/replace"
 	"github.com/zhangyiming748/ConvertVideo/util"
@@ -13,7 +12,6 @@ import (
 )
 
 func RotateVideo(in mediainfo.BasicInfo, direction string) {
-
 	if strings.Contains(in.PurgePath, "rotate") {
 		return
 	}
@@ -61,21 +59,15 @@ func RotateVideo(in mediainfo.BasicInfo, direction string) {
 	cmd = exec.Command("ffmpeg", "-y", "-i", in.FullPath, "-vf", transport, "-c:v", "libx265", "-c:a", "libopus", "-ac", "1", "-map_chapters", "-1", out)
 	err := util.ExecCommand(cmd, FrameCount)
 	if err != nil {
-		os.Exit(-1)
+		log.Fatalln("旋转视频命令发生错误")
 	}
 	originsize, _ := util.GetSize(in.FullPath)
 	aftersize, _ := util.GetSize(out)
 	sub, _ := util.GetDiffSize(originsize, aftersize)
-	fmt.Printf("savesize: %f MB\n", sub)
-	if aftersize < originsize {
-		if err = os.Remove(in.FullPath); err != nil {
-			log.Printf("删除失败:%v\n", in.FullPath)
-		} else {
-			log.Printf("删除成功:%v\n", in.FullPath)
-		}
+	log.Printf("转换前%fM转换后%fM节省%fM\n", originsize/util.MB, aftersize/util.MB, sub)
+	if err = os.Remove(in.FullPath); err != nil {
+		log.Printf("删除失败:%v\n", in.FullPath)
 	} else {
-		log.Printf("转码后文件:%v\t大于源文件:%v\n,保留不删除", out, in.FullPath)
+		log.Printf("删除成功:%v\n", in.FullPath)
 	}
-	log.Printf("本次转码完成，文件大小减少 %f MB\n", sub)
-
 }

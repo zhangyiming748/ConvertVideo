@@ -1,7 +1,6 @@
 package conv
 
 import (
-	"fmt"
 	"github.com/zhangyiming748/ConvertVideo/constant"
 	"github.com/zhangyiming748/ConvertVideo/mediainfo"
 	"github.com/zhangyiming748/ConvertVideo/replace"
@@ -49,15 +48,11 @@ func ProcessVideo2H265(in mediainfo.BasicInfo) {
 		}
 	}
 	out := strings.Join([]string{in.PurgePath, string(os.PathSeparator), middle, string(os.PathSeparator), dstPurgeName, ".mp4"}, "")
-	defer func() {
-		if err := recover(); err != nil {
-			log.Printf("出现错误\t输入文件:%v\t输出文件%v\n:", in.FullPath, out)
-		}
-	}()
 	mp4 := strings.Replace(out, in.PurgeExt, "mp4", -1)
-	cmd := exec.Command("ffmpeg", "-i", in.FullPath, "-c:v", "libx265", "-tag:v", "hvc1", "-c:a", "libopus", "-ac", "1", "-map_chapters", "-1", mp4)
+	crf := FastMediaInfo.GetCRF("h265", width, height)
+	cmd := exec.Command("ffmpeg", "-i", in.FullPath, "-c:v", "libx265", "-crf", crf, "-tag:v", "hvc1", "-c:a", "libopus", "-ac", "1", "-map_chapters", "-1", mp4)
 	if runtime.GOOS == "linux" && runtime.GOARCH == "arm64" {
-		cmd = exec.Command("ffmpeg", "-i", in.FullPath, "-threads", "1", "-c:v", "libx265", "-tag:v", "hvc1", "-c:a", "libopus", "-ac", "1", "-map_chapters", "-1", "-threads", "1", mp4)
+		cmd = exec.Command("ffmpeg", "-i", in.FullPath, "-threads", "1", "-c:v", "libx265", "-crf", crf, "-tag:v", "hvc1", "-c:a", "libopus", "-ac", "1", "-map_chapters", "-1", "-threads", "1", mp4)
 	}
 	if width > 1920 && height > 1920 {
 		log.Printf("视频大于1080P需要使用其他程序先处理视频尺寸:%v\n", in)
@@ -72,7 +67,10 @@ func ProcessVideo2H265(in mediainfo.BasicInfo) {
 	originsize, _ := util.GetSize(in.FullPath)
 	aftersize, _ := util.GetSize(mp4)
 	sub, _ := util.GetDiffSize(originsize, aftersize)
-	fmt.Printf("savesize: %f MB\n", sub)
-	log.Printf("本次转码完成，文件大小减少 %f MB\n", sub)
-	os.Remove(in.FullPath)
+	log.Printf("转换前%fM转换后%fM节省%fM\n", originsize/util.MB, aftersize/util.MB, sub)
+	if err := os.Remove(in.FullPath); err != nil {
+		log.Printf("删除失败:%v\n", in.FullPath)
+	} else {
+		log.Printf("删除成功:%v\n", in.FullPath)
+	}
 }

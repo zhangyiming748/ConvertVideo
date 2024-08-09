@@ -6,6 +6,7 @@ toolchain go1.22.2
 
 require (
 	github.com/schollz/progressbar/v3 v3.14.4
+	github.com/zhangyiming748/DeepLX v0.0.1
 	github.com/zhangyiming748/FastMediaInfo v0.0.2
 	github.com/zhangyiming748/lumberjack v0.0.1
 )
@@ -18,7 +19,6 @@ require (
 	github.com/tidwall/gjson v1.14.3 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.0 // indirect
-	github.com/zhangyiming748/DeepLX v0.0.1 // indirect
 	golang.org/x/sys v0.20.0 // indirect
 	golang.org/x/term v0.20.0 // indirect
 )

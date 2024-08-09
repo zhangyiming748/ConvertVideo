@@ -36,18 +36,18 @@ func Resize(in mediainfo.BasicInfo, p string) {
 	dst = strings.Join([]string{dst, "resize"}, string(os.PathSeparator)) //二级目录
 	fname := replace.ForFileName(in.PurgeName)                            //仅文件名
 	fname = strings.Join([]string{fname, "mp4"}, ".")
-	os.Mkdir(dst, 0777)
+	_ = os.Mkdir(dst, 0777)
 	log.Printf("输出文件夹:%v\n", dst)
 	out := strings.Join([]string{dst, fname}, string(os.PathSeparator))
 	log.Printf("源文件:%v\t目标文件:%v\n", in.FullPath, out)
 	var cmd *exec.Cmd
 	switch p {
 	case "1920x1080":
-		cmd = exec.Command("ffmpeg", "-i", in.FullPath, "-strict", "-2", "-vf", "scale=-1:1080", "-c:v", "libvpx-vp9", "-crf", "31", "-c:a", "libvorbis", "-ac", "1", out)
+		cmd = exec.Command("ffmpeg", "-i", in.FullPath, "-strict", "-2", "-vf", "scale=-1:1080", "-c:v", "libx265", "-c:a", "libopus", "-ac", "1", out)
 	case "1080x1920":
-		cmd = exec.Command("ffmpeg", "-i", in.FullPath, "-strict", "-2", "-vf", "scale=-1:1920", "-c:v", "libvpx-vp9", "-crf", "31", "-c:a", "libvorbis", "-ac", "1", out)
+		cmd = exec.Command("ffmpeg", "-i", in.FullPath, "-strict", "-2", "-vf", "scale=-1:1920", "-c:v", "libx265", "-c:a", "libopus", "-ac", "1", out)
 	case "1920x1920":
-		cmd = exec.Command("ffmpeg", "-i", in.FullPath, "-strict", "-2", "-vf", "scale=1920:1920", "-c:v", "libvpx-vp9", "-crf", "31", "-c:a", "libvorbis", "-ac", "1", out)
+		cmd = exec.Command("ffmpeg", "-i", in.FullPath, "-strict", "-2", "-vf", "scale=1920:1920", "-c:v", "libx265", "-c:a", "libopus", "-ac", "1", out)
 	default:
 		log.Fatalf("不正常的视频源:%v\n", in.FullPath)
 	}

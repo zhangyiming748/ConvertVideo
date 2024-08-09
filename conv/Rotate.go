@@ -20,7 +20,7 @@ func RotateVideo(in mediainfo.BasicInfo, direction string) {
 	in.InsertVideoInfo()
 	log.Printf("插入细节信息后:%v\n", in)
 	dst := strings.Join([]string{in.PurgePath, "rotate"}, string(os.PathSeparator))
-	os.Mkdir(dst, os.ModePerm)
+	_ = os.Mkdir(dst, os.ModePerm)
 	FrameCount := ""
 	for _, v := range in.VInfo.Media.Track {
 		if v.Type == "Video" {
@@ -58,7 +58,7 @@ func RotateVideo(in mediainfo.BasicInfo, direction string) {
 		log.Printf("没有查询到crf,使用默认crf:%v\n", crf)
 	}
 	log.Printf("获取到的crf=%v\n", crf)
-	cmd = exec.Command("ffmpeg", "-y", "-i", in.FullPath, "-vf", transport, "-c:v", "libx265", "-crf", crf, "-c:a", "libvorbis", "-ac", "1", "-map_chapters", "-1", out)
+	cmd = exec.Command("ffmpeg", "-y", "-i", in.FullPath, "-vf", transport, "-c:v", "libx265", "-c:a", "libopus", "-ac", "1", "-map_chapters", "-1", out)
 	err := util.ExecCommand(cmd, FrameCount)
 	if err != nil {
 		os.Exit(-1)
